@@ -25,22 +25,55 @@
 
                     <q-item-section>Remove waypoint</q-item-section>
                 </q-item>
+                <q-separator class="q-my-xs" />
+                <q-item>
+                    <q-item-section avatar>
+                        <q-icon color="primary" name="palette" />
+                    </q-item-section>
+                    <q-item-section>
+                      <div class="text-caption">Line Color</div>
+                      <q-input 
+                        v-model="color" 
+                        :rules="['anyColor']"
+                        dense
+                        filled
+                        class="q-mt-xs"
+                      >
+                        <template v-slot:append>
+                          <q-icon name="colorize" class="cursor-pointer">
+                            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                              <q-color v-model="color" @change="updateColor" />
+                            </q-popup-proxy>
+                          </q-icon>
+                        </template>
+                      </q-input>
+                    </q-item-section>
+                </q-item>
             </q-list>
       </div>      
     </q-card-section>
   </template>
   
   <script setup>
+      import { ref, watch } from 'vue'
+      import { useChartStore } from '../../store/chart'
       
     const props = defineProps({
       data: Object,
       wpid: Number, 
       click:Object
     });
+
+    const store = useChartStore()
+    const color = ref(store.getRefColor(props.data.id) || '#1976d2')
   
     function act(e,option) {
         console.log(e,option,props)
         emit('click:ref-cp',e,option,props.click,props.wpid,props.data.id)
+    }
+
+    function updateColor() {
+      store.updateRefColor(props.data.id, color.value)
     }
 
     const emit = defineEmits([

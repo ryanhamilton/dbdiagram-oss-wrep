@@ -173,6 +173,26 @@
   <q-btn
     padding="sm"
     size="md"
+    class="bg-secondary q-mx-xs"
+    @click.capture="animateRefs = !animateRefs"
+    :title="animateRefs ? 'Disable relationship animation' : 'Enable relationship animation'"
+  >
+    <q-icon
+      class="q-mr-xs"
+      size="xs"
+      name="timeline"/>
+    <q-toggle
+      class="q-ml-sm no-pointer-events"
+      size="sm"
+      dense
+      color="primary"
+      :model-value="animateRefs"
+      :dark="dark">
+    </q-toggle>
+  </q-btn>
+  <q-btn
+    padding="sm"
+    size="md"
     class="bg-secondary"
     @click.capture="dark = !dark">
     <q-icon
@@ -207,6 +227,7 @@
 <script setup>
   import { computed, ref, onMounted } from 'vue'
   import { useEditorStore } from 'src/store/editor'
+  import { useChartStore } from 'src/store/chart'
   import { useQuasar } from 'quasar'
   import PreferencesDialog from '../../components/PreferencesDialog'
   import VDbExportDialog from '../../components/VDbExportDialog.vue'
@@ -216,6 +237,7 @@ import VDbImportDialog from '../../components/VDbImportDialog.vue'
 
   const editor = useEditorStore()
   const files = useFilesStore()
+  const chart = useChartStore()
   const $q = useQuasar()
   const repo = useRepoStore();
 onMounted(()=>{
@@ -298,6 +320,11 @@ onMounted(()=>{
   const dark = computed({
     get: () => editor.getDark,
     set: (src) => editor.updateDark(src)
+  })
+
+  const animateRefs = computed({
+    get: () => chart.getAnimateRefs,
+    set: () => chart.toggleAnimateRefs()
   })
 
   const currentFile = computed({

@@ -15,6 +15,8 @@ export const useChartStore = defineStore("chart", {
     actualTables:{},
     tablesDict:{},
     refs: {},
+    refsColors:{},
+    animateRefs: false,
     grid: {
       size: 100,
       divisions: 10,
@@ -61,8 +63,8 @@ export const useChartStore = defineStore("chart", {
       return state.grid.size / state.grid.divisions;
     },
     persistenceData(state) {
-      const { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors } = state;
-      return  { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors };
+      const { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors, refsColors, animateRefs } = state;
+      return  { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors, refsColors, animateRefs };
     },
     getPan(state) {
       return state.pan;
@@ -244,6 +246,8 @@ export const useChartStore = defineStore("chart", {
         refs: state.refs,
         tablesColors:state.tablesColors,
         tableGroupColors: state.tableGroupColors,
+        refsColors: state.refsColors,
+        animateRefs: state.animateRefs,
         grid: state.grid,
         detailLevel: state.detailLevel
       };
@@ -258,6 +262,17 @@ export const useChartStore = defineStore("chart", {
         }
         return null;
       };
+    },
+    getRefColor(state) {
+      return (refId) => {
+        if (refId in state.refsColors) {
+          return state.refsColors[refId];
+        }
+        return null;
+      };
+    },
+    getAnimateRefs(state) {
+      return state.animateRefs;
     }
   },
   actions: {
@@ -475,6 +490,14 @@ export const useChartStore = defineStore("chart", {
         refs:{ [refId]: newRef}
        
       });
+    },
+    updateRefColor(refId, color) {
+      this.$patch({
+        refsColors: { ...this.refsColors, [refId]: color }
+      });
+    },
+    toggleAnimateRefs() {
+      this.animateRefs = !this.animateRefs;
     },
     setDetailLevel(level) {
       this.detailLevel = level;

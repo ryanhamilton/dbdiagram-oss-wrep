@@ -4,8 +4,10 @@
     :id="`ref-${id}`"
     :class="{
       'db-ref':true,
-      'db-ref__highlight': highlight
+      'db-ref__highlight': highlight,
+      'db-ref__animated': store.getAnimateRefs
     }"
+    :style="customColor ? `--ref-custom-color: ${customColor}` : ''"
     @mouseenter.passive="onMouseEnter"
     @mouseleave.passive="onMouseLeave"
   >
@@ -89,6 +91,8 @@
   const highlight = ref(false)
   const affectedTables = ref([])
   const d = ref('')
+  
+  const customColor = computed(() => store.getRefColor(props.id))
 
   const getVisibleFields = (table) => {
     const level = store.getDetailLevel;
