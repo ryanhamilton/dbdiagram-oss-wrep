@@ -198,7 +198,8 @@ import { store } from 'quasar/wrappers'
       if (ref.endpoints && ref.endpoints.length >= 2) {
         const fromTable = ref.endpoints[0]?.tableid;
         const toTable = ref.endpoints[1]?.tableid;
-        if (fromTable != null && toTable != null && graph[String(fromTable)] && graph[String(toTable)]) {
+        if (fromTable !== null && fromTable !== undefined && toTable !== null && toTable !== undefined && 
+            graph[String(fromTable)] && graph[String(toTable)]) {
           graph[String(fromTable)].push(String(toTable));
           inDegree[String(toTable)]++;
         }
@@ -273,16 +274,16 @@ import { store } from 'quasar/wrappers'
       if (ref.endpoints && ref.endpoints.length >= 2) {
         const fromTable = ref.endpoints[0]?.tableid;
         const toTable = ref.endpoints[1]?.tableid;
-        if (fromTable && connectionCount[fromTable] !== undefined) {
-          connectionCount[fromTable]++;
+        if (String(fromTable) in connectionCount) {
+          connectionCount[String(fromTable)]++;
         }
-        if (toTable && connectionCount[toTable] !== undefined) {
-          connectionCount[toTable]++;
+        if (String(toTable) in connectionCount) {
+          connectionCount[String(toTable)]++;
         }
       }
     });
 
-    // Sort tables by connection count (create a copy to avoid mutation)
+    // Sort tables by connection count (create a copy to avoid mutating the original array)
     const sortedTables = [...elements].sort((a, b) => 
       connectionCount[b] - connectionCount[a]
     );
