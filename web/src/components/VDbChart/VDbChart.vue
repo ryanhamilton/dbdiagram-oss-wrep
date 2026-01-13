@@ -108,7 +108,7 @@
 </template>
 
 <script setup>
-  import { computed, nextTick, onMounted, ref, watch, watchEffect } from 'vue'
+  import { computed, nextTick, onMounted, reactive, ref, watch, watchEffect } from 'vue'
   import VDbTable from './VDbTable'
   import VDbRef from './VDbRef'
   import svgPanZoom, { pan } from 'svg-pan-zoom'
