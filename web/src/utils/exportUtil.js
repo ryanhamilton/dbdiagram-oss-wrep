@@ -50,11 +50,43 @@ function addPngMetadata(dataUrl, text) {
     bytes[i] = binaryString.charCodeAt(i);
   }
   
-  // PNG signature: 8 bytes
-  const signature = bytes.slice(0, 8);
+  // PNG signature: 8 bytes - validate it
+  const expectedSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+  for (let i = 0; i < 8; i++) {
+    if (bytes[i] !== expectedSignature[i]) {
+      console.error('Invalid PNG signature');
+      return dataUrl; // Return original if not valid PNG
+    }
+  }
   
-  // Find IEND chunk (last chunk before end)
-  let iendPos = bytes.length - 12; // IEND is typically at the end (4 bytes length + 4 bytes type + 4 bytes CRC)
+  // Find IEND chunk by parsing chunks sequentially
+  let iendPos = -1;
+  let offset = 8; // Skip signature
+  
+  while (offset < bytes.length - 12) {
+    if (offset + 8 > bytes.length) break;
+    
+    const lengthView = new DataView(bytes.buffer, offset, 4);
+    const chunkLength = lengthView.getUint32(0, false);
+    offset += 4;
+    
+    const chunkType = new TextDecoder().decode(bytes.slice(offset, offset + 4));
+    offset += 4;
+    
+    if (chunkType === 'IEND') {
+      iendPos = offset - 8; // Position of IEND chunk length
+      break;
+    }
+    
+    // Skip chunk data + CRC, with bounds checking
+    if (offset + chunkLength + 4 > bytes.length) break;
+    offset += chunkLength + 4;
+  }
+  
+  if (iendPos === -1) {
+    console.error('IEND chunk not found');
+    return dataUrl; // Return original if IEND not found
+  }
   
   // Create tEXt chunk with keyword "dbml_code"
   const keyword = 'dbml_code';
@@ -85,16 +117,16 @@ function addPngMetadata(dataUrl, text) {
   // Construct new PNG with tEXt chunk before IEND
   const newPng = new Uint8Array(bytes.length + chunkLength.length + chunkType.length + chunkData.length + crcBytes.length);
   newPng.set(bytes.slice(0, iendPos), 0);
-  let offset = iendPos;
-  newPng.set(chunkLength, offset);
-  offset += chunkLength.length;
-  newPng.set(chunkType, offset);
-  offset += chunkType.length;
-  newPng.set(chunkData, offset);
-  offset += chunkData.length;
-  newPng.set(crcBytes, offset);
-  offset += crcBytes.length;
-  newPng.set(bytes.slice(iendPos), offset);
+  let newOffset = iendPos;
+  newPng.set(chunkLength, newOffset);
+  newOffset += chunkLength.length;
+  newPng.set(chunkType, newOffset);
+  newOffset += chunkType.length;
+  newPng.set(chunkData, newOffset);
+  newOffset += chunkData.length;
+  newPng.set(crcBytes, newOffset);
+  newOffset += crcBytes.length;
+  newPng.set(bytes.slice(iendPos), newOffset);
   
   // Convert back to base64
   let binary = '';
@@ -124,17 +156,42 @@ function calculateCRC(data) {
 export function extractPngMetadata(arrayBuffer) {
   const bytes = new Uint8Array(arrayBuffer);
   
+  // Validate PNG signature (8 bytes)
+  const expectedSignature = [137, 80, 78, 71, 13, 10, 26, 10];
+  if (bytes.length < 8) {
+    console.error('File too small to be a valid PNG');
+    return null;
+  }
+  
+  for (let i = 0; i < 8; i++) {
+    if (bytes[i] !== expectedSignature[i]) {
+      console.error('Invalid PNG signature');
+      return null;
+    }
+  }
+  
   // Skip PNG signature (8 bytes)
   let offset = 8;
   
   // Read chunks until we find tEXt with keyword "dbml_code"
   while (offset < bytes.length) {
+    // Check if we have enough bytes for chunk header
+    if (offset + 8 > bytes.length) {
+      break;
+    }
+    
     const lengthView = new DataView(bytes.buffer, offset, 4);
     const chunkLength = lengthView.getUint32(0, false);
     offset += 4;
     
     const chunkType = new TextDecoder().decode(bytes.slice(offset, offset + 4));
     offset += 4;
+    
+    // Validate chunk length to prevent overflow
+    if (offset + chunkLength + 4 > bytes.length) {
+      console.error('Invalid chunk length or corrupted PNG');
+      break;
+    }
     
     if (chunkType === 'tEXt') {
       const chunkData = bytes.slice(offset, offset + chunkLength);
@@ -145,10 +202,12 @@ export function extractPngMetadata(arrayBuffer) {
         nullPos++;
       }
       
-      const keyword = new TextDecoder().decode(chunkData.slice(0, nullPos));
-      if (keyword === 'dbml_code') {
-        const text = new TextDecoder().decode(chunkData.slice(nullPos + 1));
-        return text;
+      if (nullPos < chunkData.length) {
+        const keyword = new TextDecoder().decode(chunkData.slice(0, nullPos));
+        if (keyword === 'dbml_code') {
+          const text = new TextDecoder().decode(chunkData.slice(nullPos + 1));
+          return text;
+        }
       }
     }
     
