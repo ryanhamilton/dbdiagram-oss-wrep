@@ -46,6 +46,7 @@
     const { importer } = require('@dbml/core');
     import { useChartStore } from '../store/chart';
     import { useEditorStore } from '../store/editor';
+    import { extractPngMetadata } from '../utils/exportUtil';
 
     const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
     
@@ -117,7 +118,7 @@
                     })
                 } else {
                     if (option == 'R') {
-                        if (props.id != 'json') {
+                        if (props.id != 'json' && props.id != 'png') {
                             try {
                                 const dbmlData = importer.import(value.data, props.id);
                                 filesfs.getItem(newFileName.value).then((error, val)=>{
@@ -158,6 +159,24 @@
                             }
                             
                             
+                        } else if (props.id == 'png') {
+                            // For PNG, the DBML code has already been extracted
+                            filesfs.getItem(newFileName.value).then((error, val)=>{
+                                if (error == null) {
+                                    val.source.text = value.data
+                                    filesfs.setItem(newFileName.value,val).then(()=>{
+                                        fstore.loadFile(newFileName.value);
+                                    })
+                                }
+                                $q.notify({
+                                    caption:"Import",
+                                    message:`File ${newFileName.value} replaced`,
+                                    multiLine:true, 
+                                    color: 'green',
+                                    icon: 'upload',
+                                    position: "bottom-right"
+                                })
+                            })
                         } else {
                             filesfs.setItem(newFileName.value,value.data).then(()=>{
                                 fstore.loadFile(newFileName.value);
@@ -181,7 +200,7 @@
                             newname = newname+"_copy"+copyIndex;
                             copyIndex++;
                         }
-                        if (props.id != 'json') {
+                        if (props.id != 'json' && props.id != 'png') {
                             try {
                                 const editor = useEditorStore();
                                 const dbmlData = importer.import(value.data, props.id);
@@ -216,6 +235,19 @@
                                 console.error("IMPORT ERROR",error)
                             }
                             
+                        } else if (props.id == 'png') {
+                            // For PNG, the DBML code has already been extracted
+                            const editor = useEditorStore();
+                            fstore.newImportFile(newname)
+                            editor.updateSourceText(value.data)
+                            $q.notify({
+                                caption:"Import",
+                                message:`File copy ${newFileName.value} saved`,
+                                multiLine:true,
+                                color: 'green',
+                                icon: 'upload',
+                                position: "bottom-right"
+                            })
                         } else {
                             filesfs.setItem(newname,value.data).then(()=>{
                                 fstore.loadFile(newname);
@@ -233,7 +265,7 @@
                         
                     }
                     if (option == 'S'){
-                        if (props.id != 'json') {
+                        if (props.id != 'json' && props.id != 'png') {
                             try {
                                 const editor = useEditorStore();
                                 const dbmlData = importer.import(value.data, props.id);
@@ -260,6 +292,11 @@
                                 console.error("IMPORT ERROR",error)
                             }
                             
+                        } else if (props.id == 'png') {
+                            // For PNG, the DBML code has already been extracted
+                            const editor = useEditorStore();
+                            fstore.newImportFile(newFileName.value)
+                            editor.updateSourceText(value.data)
                         } else {
                             filesfs.setItem(newFileName.value,value.data).then(()=>{
                                 fstore.loadFile(newFileName.value);
@@ -288,22 +325,46 @@
 
         function readFile(callback) {
             let reader = new FileReader();
-            reader.addEventListener('load', (e)=>{
-                let text = reader.result;
-                let err = null
-                let filedata = text;
-                if (props.id == 'json'){
-                    let obj = JSON.parse(text);
-                    if (obj.source != undefined && obj.preferences != undefined && obj.chart != undefined) {
-                        filedata = obj;
-                    } else {
-                        err = "The file structure is incompatible with the application"
+            
+            if (props.id == 'png') {
+                // For PNG, read as ArrayBuffer to extract metadata
+                reader.addEventListener('load', (e)=>{
+                    let err = null;
+                    let filedata = null;
+                    try {
+                        const arrayBuffer = reader.result;
+                        const dbmlCode = extractPngMetadata(arrayBuffer);
+                        if (dbmlCode) {
+                            filedata = dbmlCode;
+                        } else {
+                            err = "No DBML code found in PNG metadata";
+                        }
+                    } catch (error) {
+                        err = "Failed to extract metadata from PNG: " + error.message;
                     }
-                }
-                let res = {data: filedata, error: err}
-                callback(res)
-            })
-            reader.readAsText(file);
+                    let res = {data: filedata, error: err}
+                    callback(res)
+                });
+                reader.readAsArrayBuffer(file);
+            } else {
+                // For text-based files
+                reader.addEventListener('load', (e)=>{
+                    let text = reader.result;
+                    let err = null
+                    let filedata = text;
+                    if (props.id == 'json'){
+                        let obj = JSON.parse(text);
+                        if (obj.source != undefined && obj.preferences != undefined && obj.chart != undefined) {
+                            filedata = obj;
+                        } else {
+                            err = "The file structure is incompatible with the application"
+                        }
+                    }
+                    let res = {data: filedata, error: err}
+                    callback(res)
+                })
+                reader.readAsText(file);
+            }
         }
         
         readFile(callback);

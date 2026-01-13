@@ -40,6 +40,129 @@ export function saveSvg(filename) {
        saveAs(new Blob([svg.svg.outerHTML.trim()]),filename);
 }
 
+// Helper function to add metadata to PNG
+function addPngMetadata(dataUrl, text) {
+  // PNG structure: data:image/png;base64,<base64data>
+  const base64Data = dataUrl.split(',')[1];
+  const binaryString = atob(base64Data);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  
+  // PNG signature: 8 bytes
+  const signature = bytes.slice(0, 8);
+  
+  // Find IEND chunk (last chunk before end)
+  let iendPos = bytes.length - 12; // IEND is typically at the end (4 bytes length + 4 bytes type + 4 bytes CRC)
+  
+  // Create tEXt chunk with keyword "dbml_code"
+  const keyword = 'dbml_code';
+  const keywordBytes = new TextEncoder().encode(keyword);
+  const nullSeparator = new Uint8Array([0]);
+  const textBytes = new TextEncoder().encode(text);
+  
+  // tEXt chunk: length (4) + type (4) + keyword + null + text + CRC (4)
+  const chunkData = new Uint8Array(keywordBytes.length + 1 + textBytes.length);
+  chunkData.set(keywordBytes, 0);
+  chunkData.set(nullSeparator, keywordBytes.length);
+  chunkData.set(textBytes, keywordBytes.length + 1);
+  
+  const chunkType = new TextEncoder().encode('tEXt');
+  const chunkLength = new Uint8Array(4);
+  const dataView = new DataView(chunkLength.buffer);
+  dataView.setUint32(0, chunkData.length, false);
+  
+  // Calculate CRC for type + data
+  const crcData = new Uint8Array(chunkType.length + chunkData.length);
+  crcData.set(chunkType, 0);
+  crcData.set(chunkData, chunkType.length);
+  const crc = calculateCRC(crcData);
+  const crcBytes = new Uint8Array(4);
+  const crcView = new DataView(crcBytes.buffer);
+  crcView.setUint32(0, crc, false);
+  
+  // Construct new PNG with tEXt chunk before IEND
+  const newPng = new Uint8Array(bytes.length + chunkLength.length + chunkType.length + chunkData.length + crcBytes.length);
+  newPng.set(bytes.slice(0, iendPos), 0);
+  let offset = iendPos;
+  newPng.set(chunkLength, offset);
+  offset += chunkLength.length;
+  newPng.set(chunkType, offset);
+  offset += chunkType.length;
+  newPng.set(chunkData, offset);
+  offset += chunkData.length;
+  newPng.set(crcBytes, offset);
+  offset += crcBytes.length;
+  newPng.set(bytes.slice(iendPos), offset);
+  
+  // Convert back to base64
+  let binary = '';
+  for (let i = 0; i < newPng.length; i++) {
+    binary += String.fromCharCode(newPng[i]);
+  }
+  return 'data:image/png;base64,' + btoa(binary);
+}
+
+// CRC calculation for PNG chunks
+function calculateCRC(data) {
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < data.length; i++) {
+    crc = crc ^ data[i];
+    for (let j = 0; j < 8; j++) {
+      if (crc & 1) {
+        crc = (crc >>> 1) ^ 0xEDB88320;
+      } else {
+        crc = crc >>> 1;
+      }
+    }
+  }
+  return crc ^ 0xFFFFFFFF;
+}
+
+// Helper function to extract metadata from PNG
+export function extractPngMetadata(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  
+  // Skip PNG signature (8 bytes)
+  let offset = 8;
+  
+  // Read chunks until we find tEXt with keyword "dbml_code"
+  while (offset < bytes.length) {
+    const lengthView = new DataView(bytes.buffer, offset, 4);
+    const chunkLength = lengthView.getUint32(0, false);
+    offset += 4;
+    
+    const chunkType = new TextDecoder().decode(bytes.slice(offset, offset + 4));
+    offset += 4;
+    
+    if (chunkType === 'tEXt') {
+      const chunkData = bytes.slice(offset, offset + chunkLength);
+      
+      // Find null separator
+      let nullPos = 0;
+      while (nullPos < chunkData.length && chunkData[nullPos] !== 0) {
+        nullPos++;
+      }
+      
+      const keyword = new TextDecoder().decode(chunkData.slice(0, nullPos));
+      if (keyword === 'dbml_code') {
+        const text = new TextDecoder().decode(chunkData.slice(nullPos + 1));
+        return text;
+      }
+    }
+    
+    offset += chunkLength + 4; // Skip chunk data + CRC
+    
+    // Stop at IEND
+    if (chunkType === 'IEND') {
+      break;
+    }
+  }
+  
+  return null;
+}
+
 export function savePng(filename,resolution) {
     let fake_svg = saveFakeSvg();
    
@@ -56,14 +179,22 @@ export function savePng(filename,resolution) {
         var context = canvas.getContext('2d');
         context.drawImage(image, 0,0);
         context.setTransform(scaleFactor,0,0,scaleFactor,0,0);
-        var a = document.createElement('a');
-        a.download = filename;
-        a.href = canvas.toDataURL('image/png',1.0);
-        document.body.appendChild(a);
         
-         a.click();
-
-        
+        // Get the current file's source code to embed in PNG
+        filesfs.getItem(fstore.getCurrentFile).then((file) => {
+          const sourceText = file && file.source ? file.source.text : '';
+          const dataUrl = canvas.toDataURL('image/png',1.0);
+          const pngWithMetadata = addPngMetadata(dataUrl, sourceText);
+          
+          var a = document.createElement('a');
+          a.download = filename;
+          a.href = pngWithMetadata;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+          }, 100);
+        });
       }
 }
 
@@ -236,4 +367,4 @@ function saveFakeSvg(){
      }
   }
 
-export default {saveJson, saveSvg, savePng, saveDBSQL}
+export default {saveJson, saveSvg, savePng, saveDBSQL, extractPngMetadata}

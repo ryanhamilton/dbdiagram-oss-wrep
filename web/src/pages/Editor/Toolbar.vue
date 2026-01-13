@@ -274,6 +274,11 @@ onMounted(()=>{
       ext:'json'
     },
     {
+      id: 'png',
+      label: 'PNG (with code)',
+      ext:'png'
+    },
+    {
       id: 'dbml',
       label: 'DBML',
       ext: 'txt'
