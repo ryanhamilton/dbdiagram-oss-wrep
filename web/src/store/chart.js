@@ -18,7 +18,8 @@ export const useChartStore = defineStore("chart", {
     grid: {
       size: 100,
       divisions: 10,
-      snap: 5
+      snap: 5,
+      visible: true
     },
     loaded: false,
     tooltip: {
@@ -477,6 +478,9 @@ export const useChartStore = defineStore("chart", {
     },
     setDetailLevel(level) {
       this.detailLevel = level;
+    },
+    toggleGridVisibility() {
+      this.grid.visible = !this.grid.visible;
     }
   }
 });

@@ -5,8 +5,8 @@
 .body {
   &--dark {
     --chart-bg-color: #44444c;
-    --chart-bg-grid-small-stroke-color: rgb(127, 127, 127);
-    --chart-bg-grid-stroke-color: rgb(191, 191, 191);
+    --chart-bg-grid-small-stroke-color: rgb(80, 80, 80);
+    --chart-bg-grid-stroke-color: rgb(100, 100, 100);
 
     --ref-color: #9b9ca4;
     --ref-highlight-color: #3ea8de;
@@ -35,8 +35,8 @@
 
   &--light {
     --chart-bg-color: #fbfbfb;
-    --chart-bg-grid-small-stroke-color: rgb(127, 127, 127);
-    --chart-bg-grid-stroke-color: rgb(63, 63, 63);
+    --chart-bg-grid-small-stroke-color: rgb(200, 200, 200);
+    --chart-bg-grid-stroke-color: rgb(180, 180, 180);
     --field-type-ads-bg-color: #c7c7c7;
     --field-type-ads-color: #525252;
     --ref-color: #666666;
