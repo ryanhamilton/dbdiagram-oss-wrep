@@ -16,6 +16,25 @@
     pointer-events: all;
     fill: none;
 
+    rect {
+      &:not([fill]), &[fill="undefined"]{
+        fill: var(--table-group-color);
+      }
+    }
+
+    &__color-icon {
+      pointer-events: all;
+    }
+
+    &__icon-bg {
+      cursor: pointer !important;
+    }
+
+    &__icon {
+      fill: var(--table-header-fg-color);
+      pointer-events: none;
+    }
+
     &__name {
       fill: var(--table-group-name-color);
       transform: translateX(10px) translateY(.35em);
