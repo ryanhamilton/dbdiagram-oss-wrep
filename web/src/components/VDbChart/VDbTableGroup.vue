@@ -29,7 +29,7 @@
       <rect
         height="30"
         :width="state.width"
-        :fill="groupColor || undefined"
+        :style="groupColor ? `fill: ${groupColor};` : ''"
       />
       <text class="db-tablegroup-header__name"
             y="16"
