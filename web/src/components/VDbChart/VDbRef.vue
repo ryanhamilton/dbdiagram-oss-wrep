@@ -90,9 +90,46 @@
   const affectedTables = ref([])
   const d = ref('')
 
+  const getVisibleFields = (table) => {
+    const level = store.getDetailLevel;
+    if (level === 'table_names') {
+      return [];
+    }
+    if (level === 'keys_only') {
+      return table.fields.filter(field => {
+        // Show primary keys and fields that are part of relationships (have endpoints)
+        const isPk = field.pk || table.indexes?.some(idx => 
+          idx.pk && idx.columns.some(col => col.type === 'column' && col.value === field.name)
+        );
+        const hasRef = field.endpoints && field.endpoints.length > 0;
+        return isPk || hasRef;
+      });
+    }
+    return table.fields; // all_fields
+  }
+
   const getPositionAnchors = (endpoint) => {
     const s = store.getTable(endpoint.fields[0].table.id)
-    const fieldIndex = endpoint.fields[0].table.fields.findIndex(f => f.id === endpoint.fields[0].id)
+    const table = endpoint.fields[0].table
+    const visibleFields = getVisibleFields(table)
+    
+    // Find the index within visible fields
+    const fieldIndex = visibleFields.findIndex(f => f.id === endpoint.fields[0].id)
+    
+    // If field is not visible (table_names mode or field filtered out), 
+    // position at table header center
+    if (fieldIndex === -1) {
+      return [
+        {
+          x: s.x,
+          y: s.y + 17.5  // Center of the header (35/2)
+        },
+        {
+          x: s.x + s.width,
+          y: s.y + 17.5
+        }
+      ]
+    }
 
     return [
       {
@@ -415,5 +452,10 @@
     updateControlPoints()
   }, {
     deep: true
+  })
+
+  // Watch for detail level changes and update control points
+  watch(() => store.getDetailLevel, () => {
+    updateControlPoints()
   })
 </script>
