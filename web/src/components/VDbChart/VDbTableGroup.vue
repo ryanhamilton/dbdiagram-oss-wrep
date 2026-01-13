@@ -103,13 +103,11 @@
 
   const updateSize = () => {
     const tableStates = props.tables.map(t => store.getTable(t.id));
-console.log(tableStates);
     const minX = tableStates.reduce((prev, curr) => !prev ? curr.x : Math.min(prev, curr.x), 0);
     const maxX = tableStates.reduce((prev, curr) => !prev ? curr.x + curr.width : Math.max(prev, curr.x + curr.width), 0);
     const minY = tableStates.reduce((prev, curr) => !prev ? curr.y : Math.min(prev, curr.y), 0);
     const maxY = tableStates.reduce((prev, curr) => !prev ? curr.y + curr.height : Math.max(prev, curr.y + curr.height), 0);
 
-    console.log(minX, maxX, minY, maxY);
     state.value.x = minX - 20;
     state.value.y = minY - 20 - 35;
     state.value.width = Math.abs(maxX-minX) + 40;

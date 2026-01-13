@@ -459,7 +459,7 @@ export const useChartStore = defineStore("chart", {
     },
     updateTableGroupColor(id, color) {
       this.$patch({
-        tableGroupColors: { [id]: color }
+        tableGroupColors: { ...this.tableGroupColors, [id]: color }
       });
     },
     updateTable(tableId, newTable) {
