@@ -31,19 +31,19 @@
               <q-item clickable v-close-popup @click="applyAutoLayout('left-to-right')">
                 <q-item-section>
                   <q-item-label>Left-to-Right</q-item-label>
-                  <q-item-label caption>Arrange tables from left to right based on their relationship direction. Ideal for diagrams with long relationship lineage like ETL pipelines.</q-item-label>
+                  <q-item-label caption>Arrange tables from left to right based on their relationship direction.<br>Ideal for diagrams with long relationship lineage like ETL pipelines.</q-item-label>
                 </q-item-section>
               </q-item>
               <q-item clickable v-close-popup @click="applyAutoLayout('snowflake')">
                 <q-item-section>
                   <q-item-label>Snowflake</q-item-label>
-                  <q-item-label caption>Arrange tables in a snowflake shape, with the most connected tables in the center. Ideal for densely connected diagrams like data warehouses.</q-item-label>
+                  <q-item-label caption>Arrange tables in a snowflake shape, with the most connected tables in the center.<br>Ideal for densely connected diagrams like data warehouses.</q-item-label>
                 </q-item-section>
               </q-item>
               <q-item clickable v-close-popup @click="applyAutoLayout('compact')">
                 <q-item-section>
                   <q-item-label>Compact Rectangle</q-item-label>
-                  <q-item-label caption>Arrange tables in a compact rectangle layout. Ideal for diagrams with few relationships and tables.</q-item-label>
+                  <q-item-label caption>Arrange tables in a compact rectangle layout.<br>Ideal for diagrams with few relationships and tables.</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
@@ -245,6 +245,7 @@ import { store } from 'quasar/wrappers'
     layers.forEach((layer, layerIndex) => {
       layer.forEach((tableId, indexInLayer) => {
         const table = tbls[tableId];
+        if (!table) return; // Skip if table doesn't exist
         const x = START_X + layerIndex * HORIZONTAL_SPACING;
         const y = START_Y + indexInLayer * VERTICAL_SPACING;
         chart.updateTable(parseInt(tableId, 10), {
@@ -305,6 +306,7 @@ import { store } from 'quasar/wrappers'
       const angle = (2 * Math.PI * index) / Math.max(centerTables.length, 1);
       const radius = centerTables.length > 1 ? MIN_RADIUS / 2 : 0;
       const table = tbls[tableId];
+      if (!table) return; // Skip if table doesn't exist
       chart.updateTable(parseInt(tableId, 10), {
         x: CENTER_X + radius * Math.cos(angle),
         y: CENTER_Y + radius * Math.sin(angle),
@@ -325,6 +327,7 @@ import { store } from 'quasar/wrappers'
       const angle = (2 * Math.PI * positionInRing) / tablesInCurrentRing;
       const radius = MIN_RADIUS + ringNumber * RADIUS_INCREMENT;
       const table = tbls[tableId];
+      if (!table) return; // Skip if table doesn't exist
       
       chart.updateTable(parseInt(tableId, 10), {
         x: CENTER_X + radius * Math.cos(angle),
@@ -354,6 +357,7 @@ import { store } from 'quasar/wrappers'
       const row = Math.floor(index / columns);
       const col = index % columns;
       const table = tbls[tableId];
+      if (!table) return; // Skip if table doesn't exist
       
       const x = START_X + col * HORIZONTAL_SPACING;
       const y = START_Y + row * VERTICAL_SPACING;
