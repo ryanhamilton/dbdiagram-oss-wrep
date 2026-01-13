@@ -36,6 +36,15 @@
             @click="applyScaleToFit">
             fit
           </q-btn>
+          <q-btn
+            class="q-mx-xs q-px-md"
+            color="secondary"
+            dense
+            @click="toggleGrid"
+            :title="chart.grid.visible ? 'Hide Grid' : 'Show Grid'"
+          >
+            <q-icon :name="chart.grid.visible ? 'grid_on' : 'grid_off'" />
+          </q-btn>
           <q-btn-dropdown
             class="q-mx-xs q-px-md"
             color="secondary"
@@ -302,6 +311,9 @@ import { store } from 'quasar/wrappers'
     chart.setDetailLevel(level);
   }
 
+  const toggleGrid = () => {
+    chart.toggleGridVisibility();
+  }
 
 </script>
 

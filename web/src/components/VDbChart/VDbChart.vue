@@ -42,7 +42,8 @@
       <rect class="db-chart__bg-grid"
             x="0" y="0"
             width="100%" height="100%"
-            fill="url(#db-chart__bg-grid)"/>
+            fill="url(#db-chart__bg-grid)"
+            v-if="store.grid.visible"/>
     </g>
     <g id="viewport-layer">
       <g id="tablegroups-layer"
