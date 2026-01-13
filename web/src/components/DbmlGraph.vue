@@ -36,6 +36,33 @@
             @click="applyScaleToFit">
             fit
           </q-btn>
+          <q-btn-dropdown
+            class="q-mx-xs q-px-md"
+            color="secondary"
+            dense
+            :label="detailLevelLabel"
+          >
+            <q-list>
+              <q-item clickable v-close-popup @click="setDetailLevel('all_fields')">
+                <q-item-section>
+                  <q-item-label>All Fields</q-item-label>
+                  <q-item-label caption>Show table names and all columns</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="setDetailLevel('keys_only')">
+                <q-item-section>
+                  <q-item-label>Keys Only</q-item-label>
+                  <q-item-label caption>Show table names with primary keys and foreign keys</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="setDetailLevel('table_names')">
+                <q-item-section>
+                  <q-item-label>Table Names</q-item-label>
+                  <q-item-label caption>Only show the table names</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
           <q-space/>
 
           <q-slider
@@ -262,6 +289,17 @@ import { store } from 'quasar/wrappers'
     }
     chart.updatePan(startPan.value)
     // do nothing
+  }
+
+  const detailLevelLabel = computed(() => {
+    const level = chart.getDetailLevel;
+    if (level === 'table_names') return 'Table Names';
+    if (level === 'keys_only') return 'Keys Only';
+    return 'All Fields';
+  })
+
+  const setDetailLevel = (level) => {
+    chart.setDetailLevel(level);
   }
 
 
