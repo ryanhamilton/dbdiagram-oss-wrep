@@ -196,8 +196,8 @@ import { store } from 'quasar/wrappers'
     // Build adjacency list based on relationships
     Object.values(refs).forEach(ref => {
       if (ref.endpoints && ref.endpoints.length >= 2) {
-        const fromTable = ref.endpoints[0]?.tableid;
-        const toTable = ref.endpoints[1]?.tableid;
+        const fromTable = String(ref.endpoints[0]?.tableid);
+        const toTable = String(ref.endpoints[1]?.tableid);
         if (fromTable && toTable && graph[fromTable] && graph[toTable]) {
           graph[fromTable].push(toTable);
           inDegree[toTable]++;
@@ -208,14 +208,14 @@ import { store } from 'quasar/wrappers'
     // Topological sort to determine left-to-right order
     const layers = [];
     const visited = new Set();
-    const remaining = new Set(elements.map(id => parseInt(id)));
+    const remaining = new Set(elements);
 
     while (remaining.size > 0) {
       const currentLayer = [];
       // Find all nodes with no incoming edges from unvisited nodes
       for (const id of remaining) {
         const hasUnvisitedPredecessor = Object.keys(graph).some(pred => 
-          !visited.has(parseInt(pred)) && graph[pred].includes(id)
+          !visited.has(pred) && graph[pred].includes(id)
         );
         if (!hasUnvisitedPredecessor) {
           currentLayer.push(id);
@@ -282,8 +282,8 @@ import { store } from 'quasar/wrappers'
       }
     });
 
-    // Sort tables by connection count
-    const sortedTables = elements.sort((a, b) => 
+    // Sort tables by connection count (create a copy to avoid mutation)
+    const sortedTables = [...elements].sort((a, b) => 
       connectionCount[b] - connectionCount[a]
     );
 
