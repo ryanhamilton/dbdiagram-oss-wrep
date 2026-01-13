@@ -52,6 +52,7 @@ export const useChartStore = defineStore("chart", {
       height: 0,
       datetime:null
     },
+    detailLevel: 'all_fields', // Options: 'table_names', 'keys_only', 'all_fields'
   }),
   getters: {
     subGridSize(state) {
@@ -240,8 +241,12 @@ export const useChartStore = defineStore("chart", {
         tables: state.tables,
         refs: state.refs,
         tablesColors:state.tablesColors,
-        grid: state.grid
+        grid: state.grid,
+        detailLevel: state.detailLevel
       };
+    },
+    getDetailLevel(state) {
+      return state.detailLevel;
     }
   },
   actions: {
@@ -454,6 +459,9 @@ export const useChartStore = defineStore("chart", {
         refs:{ [refId]: newRef}
        
       });
+    },
+    setDetailLevel(level) {
+      this.detailLevel = level;
     }
   }
 });

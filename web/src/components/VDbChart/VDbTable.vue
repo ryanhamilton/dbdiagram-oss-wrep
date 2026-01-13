@@ -43,7 +43,7 @@
       </g>
     </g>
     <g class="db-table-fields">
-      <v-db-field v-for="field of fields"
+      <v-db-field v-for="field of visibleFields"
                   v-bind="field"
                   :indexPk="checkIndexPK(field)"
                   :key="field.id"
@@ -97,6 +97,24 @@
 
   const root = ref(null)
 
+  const detailLevel = computed(() => store.getDetailLevel)
+
+  const visibleFields = computed(() => {
+    const level = detailLevel.value;
+    if (level === 'table_names') {
+      return [];
+    }
+    if (level === 'keys_only') {
+      return props.fields.filter(field => {
+        // Show primary keys and fields that are part of relationships (have endpoints)
+        const isPk = field.pk || checkIndexPK(field);
+        const hasRef = field.endpoints && field.endpoints.length > 0;
+        return isPk || hasRef;
+      });
+    }
+    return props.fields; // all_fields
+  })
+
   const updateWidth = () => {
     if(!root.value) return;
     const fieldEls = [...root.value.querySelectorAll('.db-field')];
@@ -110,7 +128,7 @@
   }
 
   const updateHeight = () => {
-    state.value.height = 35 + (30 * props.fields.length);
+    state.value.height = 35 + (30 * visibleFields.value.length);
     
   }
 
@@ -129,6 +147,12 @@
   });
 
   watch(() => props.fields, value => {
+    updateHeight();
+    updateWidth();
+    store.updateTable(props.id,state.value)
+  });
+
+  watch(detailLevel, () => {
     updateHeight();
     updateWidth();
     store.updateTable(props.id,state.value)
