@@ -31,19 +31,22 @@
               <q-item clickable v-close-popup @click="applyAutoLayout('left-to-right')">
                 <q-item-section>
                   <q-item-label>Left-to-Right</q-item-label>
-                  <q-item-label caption>Arrange tables from left to right based on their relationship direction.<br>Ideal for diagrams with long relationship lineage like ETL pipelines.</q-item-label>
+                  <q-item-label caption>Arrange tables from left to right based on their relationship direction.</q-item-label>
+                  <q-item-label caption>Ideal for diagrams with long relationship lineage like ETL pipelines.</q-item-label>
                 </q-item-section>
               </q-item>
               <q-item clickable v-close-popup @click="applyAutoLayout('snowflake')">
                 <q-item-section>
                   <q-item-label>Snowflake</q-item-label>
-                  <q-item-label caption>Arrange tables in a snowflake shape, with the most connected tables in the center.<br>Ideal for densely connected diagrams like data warehouses.</q-item-label>
+                  <q-item-label caption>Arrange tables in a snowflake shape, with the most connected tables in the center.</q-item-label>
+                  <q-item-label caption>Ideal for densely connected diagrams like data warehouses.</q-item-label>
                 </q-item-section>
               </q-item>
               <q-item clickable v-close-popup @click="applyAutoLayout('compact')">
                 <q-item-section>
                   <q-item-label>Compact Rectangle</q-item-label>
-                  <q-item-label caption>Arrange tables in a compact rectangle layout.<br>Ideal for diagrams with few relationships and tables.</q-item-label>
+                  <q-item-label caption>Arrange tables in a compact rectangle layout.</q-item-label>
+                  <q-item-label caption>Ideal for diagrams with few relationships and tables.</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>
