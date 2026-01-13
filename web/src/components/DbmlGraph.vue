@@ -196,11 +196,11 @@ import { store } from 'quasar/wrappers'
     // Build adjacency list based on relationships
     Object.values(refs).forEach(ref => {
       if (ref.endpoints && ref.endpoints.length >= 2) {
-        const fromTable = String(ref.endpoints[0]?.tableid);
-        const toTable = String(ref.endpoints[1]?.tableid);
-        if (fromTable && toTable && graph[fromTable] && graph[toTable]) {
-          graph[fromTable].push(toTable);
-          inDegree[toTable]++;
+        const fromTable = ref.endpoints[0]?.tableid;
+        const toTable = ref.endpoints[1]?.tableid;
+        if (fromTable != null && toTable != null && graph[String(fromTable)] && graph[String(toTable)]) {
+          graph[String(fromTable)].push(String(toTable));
+          inDegree[String(toTable)]++;
         }
       }
     });
@@ -246,7 +246,7 @@ import { store } from 'quasar/wrappers'
         const table = tbls[tableId];
         const x = START_X + layerIndex * HORIZONTAL_SPACING;
         const y = START_Y + indexInLayer * VERTICAL_SPACING;
-        chart.updateTable(parseInt(tableId), {
+        chart.updateTable(parseInt(tableId, 10), {
           x,
           y,
           width: table.width,
@@ -304,7 +304,7 @@ import { store } from 'quasar/wrappers'
       const angle = (2 * Math.PI * index) / Math.max(centerTables.length, 1);
       const radius = centerTables.length > 1 ? MIN_RADIUS / 2 : 0;
       const table = tbls[tableId];
-      chart.updateTable(parseInt(tableId), {
+      chart.updateTable(parseInt(tableId, 10), {
         x: CENTER_X + radius * Math.cos(angle),
         y: CENTER_Y + radius * Math.sin(angle),
         width: table.width,
@@ -325,7 +325,7 @@ import { store } from 'quasar/wrappers'
       const radius = MIN_RADIUS + ringNumber * RADIUS_INCREMENT;
       const table = tbls[tableId];
       
-      chart.updateTable(parseInt(tableId), {
+      chart.updateTable(parseInt(tableId, 10), {
         x: CENTER_X + radius * Math.cos(angle),
         y: CENTER_Y + radius * Math.sin(angle),
         width: table.width,
@@ -357,7 +357,7 @@ import { store } from 'quasar/wrappers'
       const x = START_X + col * HORIZONTAL_SPACING;
       const y = START_Y + row * VERTICAL_SPACING;
       
-      chart.updateTable(parseInt(tableId), {
+      chart.updateTable(parseInt(tableId, 10), {
         x,
         y,
         width: table.width,
