@@ -21,14 +21,33 @@
     <div class="dbml-toolbar-wrapper">
       <q-card class="shadow-6">
         <q-toolbar class="rounded-borders">
-          <q-btn
+          <q-btn-dropdown
             class="q-mr-xs q-px-md"
             color="secondary"
             dense
-            @click="applyAutoLayout"
+            label="Auto-Layout"
           >
-            Auto-Layout
-          </q-btn>
+            <q-list>
+              <q-item clickable v-close-popup @click="applyAutoLayout('left-to-right')">
+                <q-item-section>
+                  <q-item-label>Left-to-Right</q-item-label>
+                  <q-item-label caption>Arrange tables from left to right based on their relationship direction. Ideal for diagrams with long relationship lineage like ETL pipelines.</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="applyAutoLayout('snowflake')">
+                <q-item-section>
+                  <q-item-label>Snowflake</q-item-label>
+                  <q-item-label caption>Arrange tables in a snowflake shape, with the most connected tables in the center. Ideal for densely connected diagrams like data warehouses.</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="applyAutoLayout('compact')">
+                <q-item-section>
+                  <q-item-label>Compact Rectangle</q-item-label>
+                  <q-item-label caption>Arrange tables in a compact rectangle layout. Ideal for diagrams with few relationships and tables.</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
           <q-btn
             class="q-mx-xs q-px-md"
             color="secondary"
@@ -147,108 +166,204 @@ import { store } from 'quasar/wrappers'
   const minScale = ref(10)
   const maxScale = ref(200)
 
-  const applyAutoLayout = () => {
+  const applyAutoLayout = (algorithm = 'left-to-right') => {
+    if (algorithm === 'left-to-right') {
+      applyLeftToRightLayout();
+    } else if (algorithm === 'snowflake') {
+      applySnowflakeLayout();
+    } else if (algorithm === 'compact') {
+      applyCompactLayout();
+    }
+  }
+
+  const applyLeftToRightLayout = () => {
     const tbls = chart.getTables;
-    //var cntr = tbls.lenght % 2;
-    var elements = Object.keys(tbls);
-    var layout = [];
-    let update = false;
-    for (let el of elements){
-      layout.push(Object.values(tbls[el]));
-    }
-    for (let index =0 ; index < layout.length; index++){
-      var cross_vector = []
-    if (update) {
-      const tbls = chart.getTables;
-    //var cntr = tbls.lenght % 2;
-    var elements = Object.keys(tbls);
-    layout = [];
-      for (let el of elements){
-        layout.push(Object.values(tbls[el]));
-      }
-    }
-    let current_points = getObjectPoints(layout[index]);
-    for (let i =0 ; i < layout.length; i++){
-      if (i !== index){
-     
-        cross_vector = checkCrossPoints(current_points,getObjectPoints(layout[i]));
-          if (cross_vector[0] || cross_vector[1] || cross_vector[2] || cross_vector[3]){
-          break;
-        }
-      } 
-    }
-    if (cross_vector[0]) {
-      layout[index][0] = layout[index][0]+layout[index][2]*2;
-    }
-    if (cross_vector[1]) {
-      layout[index][0] = layout[index][0]-layout[index][2]*2;
-      layout[index][1] = layout[index][1]+layout[index][3]*0.8;
-    }
-    if (cross_vector[2]) {
-      layout[index][0] = layout[index][0]-layout[index][2]*2;
-      layout[index][1] = layout[index][1]-layout[index][3]*0.8;
-    }
-    if (cross_vector[3]) {
-      layout[index][0] = layout[index][0]+layout[index][2]*2;
-      layout[index][1] =layout[index][1]- layout[index][3]*0.8;
-    }
-    if (cross_vector[0] || cross_vector[1] || cross_vector[2] || cross_vector[3]){
-         update = true;
-         chart.updateTable(index+1,{x:layout[index][0], y:layout[index][1], width:layout[index][2], height:layout[index][3]})
-        }
-    }
+    const refs = chart.getRefs();
+    const elements = Object.keys(tbls);
     
-    // do nothing
-  }
+    if (elements.length === 0) return;
 
+    // Build a graph of relationships
+    const graph = {};
+    const inDegree = {};
+    
+    // Initialize graph nodes
+    elements.forEach(id => {
+      graph[id] = [];
+      inDegree[id] = 0;
+    });
 
-  const getObjectPoints = (object) =>{
-    return [
-      [object[0],object[1]],
-      [object[0]+object[2],object[1]],
-      [object[0]+object[2],object[1]+object[3]],
-      [object[0],object[1]+object[3]]];
-  }
-
-  const checkCrossPoints = (sp, dp) => {
-      let cross_vector = [false,false,false,false];
-      let cross_vector_state = [false,false,false,false];
-      for (let i = 0; i < sp.length; i++) {
-        cross_vector_state = [false,false,false,false];
-        for (let j = 0; j < dp.length; j++) {
-          if (j == 0){
-              if(dp[j][0] <= sp[i][0] && dp[j][1] <= sp[i][1]){
-                cross_vector_state[0] = true;
-              } else {
-                cross_vector_state[0] = false;
-              }
-          }
-          if (j == 1){
-              if(dp[j][0] >= sp[i][0] && dp[j][1] <= sp[i][1]){
-                cross_vector_state[1] = true;
-              }else {
-                cross_vector_state[1] = false;
-              }
-          }
-          if (j == 2){
-              if(dp[j][0] >= sp[i][0] && dp[j][1] >= sp[i][1]){
-                cross_vector_state[2] = true;
-              } else {
-                cross_vector_state[2] = false;
-              }
-          }
-          if (j == 3){
-              if(dp[j][0] <= sp[i][0] && dp[j][1] >= sp[i][1] ){
-                cross_vector_state[3] = true;
-              } else {
-                cross_vector_state[3] = false;
-              }
-          }
+    // Build adjacency list based on relationships
+    Object.values(refs).forEach(ref => {
+      if (ref.endpoints && ref.endpoints.length >= 2) {
+        const fromTable = ref.endpoints[0]?.tableid;
+        const toTable = ref.endpoints[1]?.tableid;
+        if (fromTable && toTable && graph[fromTable] && graph[toTable]) {
+          graph[fromTable].push(toTable);
+          inDegree[toTable]++;
         }
-        
-        cross_vector[i] = cross_vector_state[0] && cross_vector_state[1] && cross_vector_state[2] && cross_vector_state[3];
       }
-      return cross_vector;
+    });
+
+    // Topological sort to determine left-to-right order
+    const layers = [];
+    const visited = new Set();
+    const remaining = new Set(elements.map(id => parseInt(id)));
+
+    while (remaining.size > 0) {
+      const currentLayer = [];
+      // Find all nodes with no incoming edges from unvisited nodes
+      for (const id of remaining) {
+        const hasUnvisitedPredecessor = Object.keys(graph).some(pred => 
+          !visited.has(parseInt(pred)) && graph[pred].includes(id)
+        );
+        if (!hasUnvisitedPredecessor) {
+          currentLayer.push(id);
+        }
+      }
+      
+      // If no nodes found, just take remaining nodes (cycle case)
+      if (currentLayer.length === 0) {
+        currentLayer.push(...Array.from(remaining));
+      }
+      
+      currentLayer.forEach(id => {
+        visited.add(id);
+        remaining.delete(id);
+      });
+      
+      layers.push(currentLayer);
+    }
+
+    // Position tables in layers
+    const HORIZONTAL_SPACING = 400;
+    const VERTICAL_SPACING = 150;
+    const START_X = 0;
+    const START_Y = 0;
+
+    layers.forEach((layer, layerIndex) => {
+      layer.forEach((tableId, indexInLayer) => {
+        const table = tbls[tableId];
+        const x = START_X + layerIndex * HORIZONTAL_SPACING;
+        const y = START_Y + indexInLayer * VERTICAL_SPACING;
+        chart.updateTable(parseInt(tableId), {
+          x,
+          y,
+          width: table.width,
+          height: table.height
+        });
+      });
+    });
+  }
+
+  const applySnowflakeLayout = () => {
+    const tbls = chart.getTables;
+    const refs = chart.getRefs();
+    const elements = Object.keys(tbls);
+    
+    if (elements.length === 0) return;
+
+    // Count connections for each table
+    const connectionCount = {};
+    elements.forEach(id => {
+      connectionCount[id] = 0;
+    });
+
+    Object.values(refs).forEach(ref => {
+      if (ref.endpoints && ref.endpoints.length >= 2) {
+        const fromTable = ref.endpoints[0]?.tableid;
+        const toTable = ref.endpoints[1]?.tableid;
+        if (fromTable && connectionCount[fromTable] !== undefined) {
+          connectionCount[fromTable]++;
+        }
+        if (toTable && connectionCount[toTable] !== undefined) {
+          connectionCount[toTable]++;
+        }
+      }
+    });
+
+    // Sort tables by connection count
+    const sortedTables = elements.sort((a, b) => 
+      connectionCount[b] - connectionCount[a]
+    );
+
+    // Position tables in concentric circles
+    const CENTER_X = 0;
+    const CENTER_Y = 0;
+    const RADIUS_INCREMENT = 300;
+    const MIN_RADIUS = 200;
+
+    // Place most connected table(s) in center
+    const maxConnections = connectionCount[sortedTables[0]];
+    const centerTables = sortedTables.filter(id => 
+      connectionCount[id] === maxConnections
+    );
+    
+    // Position center tables
+    centerTables.forEach((tableId, index) => {
+      const angle = (2 * Math.PI * index) / Math.max(centerTables.length, 1);
+      const radius = centerTables.length > 1 ? MIN_RADIUS / 2 : 0;
+      const table = tbls[tableId];
+      chart.updateTable(parseInt(tableId), {
+        x: CENTER_X + radius * Math.cos(angle),
+        y: CENTER_Y + radius * Math.sin(angle),
+        width: table.width,
+        height: table.height
+      });
+    });
+
+    // Position remaining tables in rings
+    const remainingTables = sortedTables.slice(centerTables.length);
+    const tablesPerRing = 6;
+    
+    remainingTables.forEach((tableId, index) => {
+      const ringNumber = Math.floor(index / tablesPerRing) + 1;
+      const positionInRing = index % tablesPerRing;
+      const tablesInCurrentRing = Math.min(tablesPerRing, remainingTables.length - (ringNumber - 1) * tablesPerRing);
+      
+      const angle = (2 * Math.PI * positionInRing) / tablesInCurrentRing;
+      const radius = MIN_RADIUS + ringNumber * RADIUS_INCREMENT;
+      const table = tbls[tableId];
+      
+      chart.updateTable(parseInt(tableId), {
+        x: CENTER_X + radius * Math.cos(angle),
+        y: CENTER_Y + radius * Math.sin(angle),
+        width: table.width,
+        height: table.height
+      });
+    });
+  }
+
+  const applyCompactLayout = () => {
+    const tbls = chart.getTables;
+    const elements = Object.keys(tbls);
+    
+    if (elements.length === 0) return;
+
+    // Calculate grid dimensions
+    const tableCount = elements.length;
+    const columns = Math.ceil(Math.sqrt(tableCount));
+    const HORIZONTAL_SPACING = 300;
+    const VERTICAL_SPACING = 200;
+    const START_X = 0;
+    const START_Y = 0;
+
+    // Position tables in a grid
+    elements.forEach((tableId, index) => {
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      const table = tbls[tableId];
+      
+      const x = START_X + col * HORIZONTAL_SPACING;
+      const y = START_Y + row * VERTICAL_SPACING;
+      
+      chart.updateTable(parseInt(tableId), {
+        x,
+        y,
+        width: table.width,
+        height: table.height
+      });
+    });
   }
 
   function getBounds(bounds, objects,isRef = false){
