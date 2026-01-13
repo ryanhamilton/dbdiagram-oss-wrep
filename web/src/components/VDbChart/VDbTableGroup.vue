@@ -17,8 +17,7 @@
     <rect class="db-tablegroup__background"
           :width="state.width"
           :height="state.height"
-          :fill="groupColor ? hexToRgba(groupColor, 0.3) : undefined"
-          :stroke="groupColor || undefined"
+          :style="groupColor ? `fill: ${hexToRgba(groupColor, 0.3)}; stroke: ${groupColor};` : ''"
     />
     <g class="db-tablegroup-header"
        @mousedown.passive="startDrag"
@@ -34,7 +33,7 @@
       />
       <text class="db-tablegroup-header__name"
             y="16"
-            :fill="groupColor ? '#ffffff' : undefined"
+            :style="groupColor ? 'fill: #ffffff;' : ''"
       >
         {{ name }}
       </text>
