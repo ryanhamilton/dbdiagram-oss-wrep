@@ -180,77 +180,203 @@ import { store } from 'quasar/wrappers'
   }
 
   const applyLeftToRightLayout = () => {
-    const tbls = chart.getTables;
-    const refs = chart.getRefs();
-    const elements = Object.keys(tbls);
-    
-    if (elements.length === 0) return;
-
-    // Build a graph of relationships
-    const graph = {};
-    const inDegree = {};
-    
-    // Initialize graph nodes
-    elements.forEach(id => {
-      graph[id] = [];
-      inDegree[id] = 0;
-    });
-
-    // Build adjacency list based on relationships
-    Object.values(refs).forEach(ref => {
-      if (ref.endpoints && ref.endpoints.length >= 2) {
-        const fromTable = ref.endpoints[0]?.tableid;
-        const toTable = ref.endpoints[1]?.tableid;
-        if (fromTable !== null && fromTable !== undefined && toTable !== null && toTable !== undefined && 
-            graph[String(fromTable)] && graph[String(toTable)]) {
-          graph[String(fromTable)].push(String(toTable));
-          inDegree[String(toTable)]++;
-        }
-      }
-    });
-
-    // Topological sort to determine left-to-right order
-    const layers = [];
-    const visited = new Set();
-    const remaining = new Set(elements);
-
-    while (remaining.size > 0) {
-      const currentLayer = [];
-      // Find all nodes with no incoming edges from unvisited nodes
-      for (const id of remaining) {
-        const hasUnvisitedPredecessor = Object.keys(graph).some(pred => 
-          !visited.has(pred) && graph[pred].includes(id)
-        );
-        if (!hasUnvisitedPredecessor) {
-          currentLayer.push(id);
-        }
-      }
+    try {
+      const tbls = chart.getTables;
+      const refs = chart.getRefs();
+      const elements = Object.keys(tbls);
       
-      // If no nodes found, just take remaining nodes (cycle case)
-      if (currentLayer.length === 0) {
-        currentLayer.push(...Array.from(remaining));
-      }
+      if (elements.length === 0) return;
+
+      // Build a graph of relationships
+      const graph = {};
+      const inDegree = {};
       
-      currentLayer.forEach(id => {
-        visited.add(id);
-        remaining.delete(id);
+      // Initialize graph nodes
+      elements.forEach(id => {
+        graph[id] = [];
+        inDegree[id] = 0;
       });
-      
-      layers.push(currentLayer);
+
+      // Build adjacency list based on relationships
+      Object.values(refs).forEach(ref => {
+        if (ref.endpoints && ref.endpoints.length >= 2) {
+          const fromTable = ref.endpoints[0]?.tableid;
+          const toTable = ref.endpoints[1]?.tableid;
+          if (fromTable !== null && fromTable !== undefined && toTable !== null && toTable !== undefined && 
+              graph[String(fromTable)] && graph[String(toTable)]) {
+            graph[String(fromTable)].push(String(toTable));
+            inDegree[String(toTable)]++;
+          }
+        }
+      });
+
+      // Topological sort to determine left-to-right order
+      const layers = [];
+      const visited = new Set();
+      const remaining = new Set(elements);
+
+      while (remaining.size > 0) {
+        const currentLayer = [];
+        // Find all nodes with no incoming edges from unvisited nodes
+        for (const id of remaining) {
+          const hasUnvisitedPredecessor = Object.keys(graph).some(pred => 
+            !visited.has(pred) && graph[pred].includes(id)
+          );
+          if (!hasUnvisitedPredecessor) {
+            currentLayer.push(id);
+          }
+        }
+        
+        // If no nodes found, just take remaining nodes (cycle case)
+        if (currentLayer.length === 0) {
+          currentLayer.push(...Array.from(remaining));
+        }
+        
+        currentLayer.forEach(id => {
+          visited.add(id);
+          remaining.delete(id);
+        });
+        
+        layers.push(currentLayer);
+      }
+
+      // Position tables in layers
+      const HORIZONTAL_SPACING = 400;
+      const VERTICAL_SPACING = 150;
+      const START_X = 0;
+      const START_Y = 0;
+
+      layers.forEach((layer, layerIndex) => {
+        layer.forEach((tableId, indexInLayer) => {
+          const table = tbls[tableId];
+          if (!table) return; // Skip if table doesn't exist
+          const x = START_X + layerIndex * HORIZONTAL_SPACING;
+          const y = START_Y + indexInLayer * VERTICAL_SPACING;
+          chart.updateTable(parseInt(tableId, 10), {
+            x,
+            y,
+            width: table.width,
+            height: table.height
+          });
+        });
+      });
+    } catch (error) {
+      console.error('Error in left-to-right layout:', error);
     }
+  }
 
-    // Position tables in layers
-    const HORIZONTAL_SPACING = 400;
-    const VERTICAL_SPACING = 150;
-    const START_X = 0;
-    const START_Y = 0;
+  const applySnowflakeLayout = () => {
+    try {
+      const tbls = chart.getTables;
+      const refs = chart.getRefs();
+      const elements = Object.keys(tbls);
+      
+      if (elements.length === 0) return;
 
-    layers.forEach((layer, layerIndex) => {
-      layer.forEach((tableId, indexInLayer) => {
+      // Count connections for each table
+      const connectionCount = {};
+      elements.forEach(id => {
+        connectionCount[id] = 0;
+      });
+
+      Object.values(refs).forEach(ref => {
+        if (ref.endpoints && ref.endpoints.length >= 2) {
+          const fromTable = ref.endpoints[0]?.tableid;
+          const toTable = ref.endpoints[1]?.tableid;
+          if (String(fromTable) in connectionCount) {
+            connectionCount[String(fromTable)]++;
+          }
+          if (String(toTable) in connectionCount) {
+            connectionCount[String(toTable)]++;
+          }
+        }
+      });
+
+      // Sort tables by connection count (create a copy to avoid mutating the original array)
+      const sortedTables = [...elements].sort((a, b) => 
+        connectionCount[b] - connectionCount[a]
+      );
+
+      // Check if we have any tables to position
+      if (sortedTables.length === 0) return;
+
+      // Position tables in concentric circles
+      const CENTER_X = 0;
+      const CENTER_Y = 0;
+      const RADIUS_INCREMENT = 300;
+      const MIN_RADIUS = 200;
+
+      // Place most connected table(s) in center
+      const maxConnections = connectionCount[sortedTables[0]];
+      const centerTables = sortedTables.filter(id => 
+        connectionCount[id] === maxConnections
+      );
+      
+      // Position center tables
+      centerTables.forEach((tableId, index) => {
+        const angle = (2 * Math.PI * index) / Math.max(centerTables.length, 1);
+        const radius = centerTables.length > 1 ? MIN_RADIUS / 2 : 0;
         const table = tbls[tableId];
         if (!table) return; // Skip if table doesn't exist
-        const x = START_X + layerIndex * HORIZONTAL_SPACING;
-        const y = START_Y + indexInLayer * VERTICAL_SPACING;
+        chart.updateTable(parseInt(tableId, 10), {
+          x: CENTER_X + radius * Math.cos(angle),
+          y: CENTER_Y + radius * Math.sin(angle),
+          width: table.width,
+          height: table.height
+        });
+      });
+
+      // Position remaining tables in rings
+      const remainingTables = sortedTables.slice(centerTables.length);
+      const tablesPerRing = 6;
+      
+      remainingTables.forEach((tableId, index) => {
+        const ringNumber = Math.floor(index / tablesPerRing) + 1;
+        const positionInRing = index % tablesPerRing;
+        const tablesInCurrentRing = Math.min(tablesPerRing, remainingTables.length - (ringNumber - 1) * tablesPerRing);
+        
+        const angle = (2 * Math.PI * positionInRing) / tablesInCurrentRing;
+        const radius = MIN_RADIUS + ringNumber * RADIUS_INCREMENT;
+        const table = tbls[tableId];
+        if (!table) return; // Skip if table doesn't exist
+        
+        chart.updateTable(parseInt(tableId, 10), {
+          x: CENTER_X + radius * Math.cos(angle),
+          y: CENTER_Y + radius * Math.sin(angle),
+          width: table.width,
+          height: table.height
+        });
+      });
+    } catch (error) {
+      console.error('Error in snowflake layout:', error);
+    }
+  }
+
+  const applyCompactLayout = () => {
+    try {
+      const tbls = chart.getTables;
+      const elements = Object.keys(tbls);
+      
+      if (elements.length === 0) return;
+
+      // Calculate grid dimensions
+      const tableCount = elements.length;
+      const columns = Math.ceil(Math.sqrt(tableCount));
+      const HORIZONTAL_SPACING = 300;
+      const VERTICAL_SPACING = 200;
+      const START_X = 0;
+      const START_Y = 0;
+
+      // Position tables in a grid
+      elements.forEach((tableId, index) => {
+        const row = Math.floor(index / columns);
+        const col = index % columns;
+        const table = tbls[tableId];
+        if (!table) return; // Skip if table doesn't exist
+        
+        const x = START_X + col * HORIZONTAL_SPACING;
+        const y = START_Y + row * VERTICAL_SPACING;
+        
         chart.updateTable(parseInt(tableId, 10), {
           x,
           y,
@@ -258,120 +384,9 @@ import { store } from 'quasar/wrappers'
           height: table.height
         });
       });
-    });
-  }
-
-  const applySnowflakeLayout = () => {
-    const tbls = chart.getTables;
-    const refs = chart.getRefs();
-    const elements = Object.keys(tbls);
-    
-    if (elements.length === 0) return;
-
-    // Count connections for each table
-    const connectionCount = {};
-    elements.forEach(id => {
-      connectionCount[id] = 0;
-    });
-
-    Object.values(refs).forEach(ref => {
-      if (ref.endpoints && ref.endpoints.length >= 2) {
-        const fromTable = ref.endpoints[0]?.tableid;
-        const toTable = ref.endpoints[1]?.tableid;
-        if (String(fromTable) in connectionCount) {
-          connectionCount[String(fromTable)]++;
-        }
-        if (String(toTable) in connectionCount) {
-          connectionCount[String(toTable)]++;
-        }
-      }
-    });
-
-    // Sort tables by connection count (create a copy to avoid mutating the original array)
-    const sortedTables = [...elements].sort((a, b) => 
-      connectionCount[b] - connectionCount[a]
-    );
-
-    // Position tables in concentric circles
-    const CENTER_X = 0;
-    const CENTER_Y = 0;
-    const RADIUS_INCREMENT = 300;
-    const MIN_RADIUS = 200;
-
-    // Place most connected table(s) in center
-    const maxConnections = connectionCount[sortedTables[0]];
-    const centerTables = sortedTables.filter(id => 
-      connectionCount[id] === maxConnections
-    );
-    
-    // Position center tables
-    centerTables.forEach((tableId, index) => {
-      const angle = (2 * Math.PI * index) / Math.max(centerTables.length, 1);
-      const radius = centerTables.length > 1 ? MIN_RADIUS / 2 : 0;
-      const table = tbls[tableId];
-      if (!table) return; // Skip if table doesn't exist
-      chart.updateTable(parseInt(tableId, 10), {
-        x: CENTER_X + radius * Math.cos(angle),
-        y: CENTER_Y + radius * Math.sin(angle),
-        width: table.width,
-        height: table.height
-      });
-    });
-
-    // Position remaining tables in rings
-    const remainingTables = sortedTables.slice(centerTables.length);
-    const tablesPerRing = 6;
-    
-    remainingTables.forEach((tableId, index) => {
-      const ringNumber = Math.floor(index / tablesPerRing) + 1;
-      const positionInRing = index % tablesPerRing;
-      const tablesInCurrentRing = Math.min(tablesPerRing, remainingTables.length - (ringNumber - 1) * tablesPerRing);
-      
-      const angle = (2 * Math.PI * positionInRing) / tablesInCurrentRing;
-      const radius = MIN_RADIUS + ringNumber * RADIUS_INCREMENT;
-      const table = tbls[tableId];
-      if (!table) return; // Skip if table doesn't exist
-      
-      chart.updateTable(parseInt(tableId, 10), {
-        x: CENTER_X + radius * Math.cos(angle),
-        y: CENTER_Y + radius * Math.sin(angle),
-        width: table.width,
-        height: table.height
-      });
-    });
-  }
-
-  const applyCompactLayout = () => {
-    const tbls = chart.getTables;
-    const elements = Object.keys(tbls);
-    
-    if (elements.length === 0) return;
-
-    // Calculate grid dimensions
-    const tableCount = elements.length;
-    const columns = Math.ceil(Math.sqrt(tableCount));
-    const HORIZONTAL_SPACING = 300;
-    const VERTICAL_SPACING = 200;
-    const START_X = 0;
-    const START_Y = 0;
-
-    // Position tables in a grid
-    elements.forEach((tableId, index) => {
-      const row = Math.floor(index / columns);
-      const col = index % columns;
-      const table = tbls[tableId];
-      if (!table) return; // Skip if table doesn't exist
-      
-      const x = START_X + col * HORIZONTAL_SPACING;
-      const y = START_Y + row * VERTICAL_SPACING;
-      
-      chart.updateTable(parseInt(tableId, 10), {
-        x,
-        y,
-        width: table.width,
-        height: table.height
-      });
-    });
+    } catch (error) {
+      console.error('Error in compact layout:', error);
+    }
   }
 
   function getBounds(bounds, objects,isRef = false){
