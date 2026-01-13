@@ -40,7 +40,7 @@
             class="q-mx-xs q-px-md"
             color="secondary"
             dense
-            @click="toggleGrid"
+            @click="toggleGridVisibility"
             :title="chart.grid.visible ? 'Hide Grid' : 'Show Grid'"
           >
             <q-icon :name="chart.grid.visible ? 'grid_on' : 'grid_off'" />
@@ -311,7 +311,7 @@ import { store } from 'quasar/wrappers'
     chart.setDetailLevel(level);
   }
 
-  const toggleGrid = () => {
+  const toggleGridVisibility = () => {
     chart.toggleGridVisibility();
   }
 
