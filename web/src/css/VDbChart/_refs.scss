@@ -1,4 +1,6 @@
 .db-ref {
+  --ref-animated-width: 4;
+  
   &__path {
     fill: none;
     stroke: var(--ref-custom-color, var(--ref-color));
@@ -28,7 +30,7 @@
 
   &__animated {
     .db-ref__path {
-      stroke-width: 4;
+      stroke-width: var(--ref-animated-width);
       animation: pulse-flow 2s ease-in-out infinite;
     }
   }
@@ -58,11 +60,11 @@
 
 @keyframes pulse-flow {
   0%, 100% {
-    stroke-width: 4;
+    stroke-width: var(--ref-animated-width);
     opacity: 0.8;
   }
   50% {
-    stroke-width: 5;
+    stroke-width: calc(var(--ref-animated-width) + 1);
     opacity: 1;
   }
 }
