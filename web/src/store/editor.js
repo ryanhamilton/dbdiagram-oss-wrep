@@ -206,16 +206,32 @@ export const useEditorStore = defineStore("editor", {
     },
     updateParserError(err) {
       if (err) {
-        this.$patch({
-          parserError: {
-            location: {
-              start: { row: err.location.start.line - 1, col: err.location.start.column - 1 },
-              end: { row: err.location.end.line - 1, col: err.location.end.column - 1 }
-            },
-            type: 'error',
-            message: err.message
-          }
-        });
+        // Handle new @dbml/core v5+ error structure with diags array
+        const diag = err.diags && err.diags.length > 0 ? err.diags[0] : null;
+        if (diag && diag.location) {
+          this.$patch({
+            parserError: {
+              location: {
+                start: { row: diag.location.start.line - 1, col: diag.location.start.column - 1 },
+                end: { row: diag.location.end.line - 1, col: diag.location.end.column - 1 }
+              },
+              type: 'error',
+              message: diag.message
+            }
+          });
+        } else if (err.location) {
+          // Fallback for old error structure (pre-v5)
+          this.$patch({
+            parserError: {
+              location: {
+                start: { row: err.location.start.line - 1, col: err.location.start.column - 1 },
+                end: { row: err.location.end.line - 1, col: err.location.end.column - 1 }
+              },
+              type: 'error',
+              message: err.message
+            }
+          });
+        }
       } else {
         this.$patch({
           parserError: undefined
