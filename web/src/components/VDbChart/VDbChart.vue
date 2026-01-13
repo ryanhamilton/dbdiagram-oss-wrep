@@ -410,9 +410,12 @@
    store.hideRefPanel();
  }
 
-  function onColorClick (e, id,name, color,schema) {
-   
-    store.updateTableColor(name,id,color,schema);
+  function onColorClick (e, id, name, color, schema, isTableGroup) {
+    if (isTableGroup) {
+      store.updateTableGroupColor(id, color);
+    } else {
+      store.updateTableColor(name, id, color, schema);
+    }
     store.hidePanel();
   }
   function onFieldDblClick (e, field) {

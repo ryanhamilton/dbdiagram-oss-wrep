@@ -11,6 +11,7 @@ export const useChartStore = defineStore("chart", {
     tableGroups: {},
     tables: {},
     tablesColors:{},
+    tableGroupColors:{},
     actualTables:{},
     tablesDict:{},
     refs: {},
@@ -59,8 +60,8 @@ export const useChartStore = defineStore("chart", {
       return state.grid.size / state.grid.divisions;
     },
     persistenceData(state) {
-      const { zoom, pan, ctm, inverseCtm, tables, refs } = state;
-      return  { zoom, pan, ctm, inverseCtm, tables, refs };
+      const { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors } = state;
+      return  { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors };
     },
     getPan(state) {
       return state.pan;
@@ -241,12 +242,21 @@ export const useChartStore = defineStore("chart", {
         tables: state.tables,
         refs: state.refs,
         tablesColors:state.tablesColors,
+        tableGroupColors: state.tableGroupColors,
         grid: state.grid,
         detailLevel: state.detailLevel
       };
     },
     getDetailLevel(state) {
       return state.detailLevel;
+    },
+    getTableGroupColor(state) {
+      return (tableGroupId) => {
+        if (tableGroupId in state.tableGroupColors) {
+          return state.tableGroupColors[tableGroupId];
+        }
+        return null;
+      };
     }
   },
   actions: {
@@ -445,6 +455,11 @@ export const useChartStore = defineStore("chart", {
       let tfn = `${schema}.${tablename}`;
       this.$patch({
         tablesColors:{[id]: { [tfn]: {'color': color }}}
+      });
+    },
+    updateTableGroupColor(id, color) {
+      this.$patch({
+        tableGroupColors: { [id]: color }
       });
     },
     updateTable(tableId, newTable) {
