@@ -1085,14 +1085,23 @@
     "@babel/helper-validator-identifier" "^7.22.19"
     to-fast-properties "^2.0.0"
 
-"@dbml/core@^2.3.1":
-  version "2.5.4"
-  resolved "https://registry.npmjs.org/@dbml/core/-/core-2.5.4.tgz"
-  integrity sha512-bfLb59z6pExD64eFUZTiRQfVW853v+vsfQd1bOKAZm4fHozGYVyQnM5WI4AahkAy+Jwm9NKr/b0wmrT/Hyft1w==
+"@dbml/core@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.npmjs.org/@dbml/core/-/core-5.4.0.tgz"
+  integrity sha512-wPoozfQakfaQHzJwbFE3P0vAJxy6uPlsIcY00adhVKEvlQu/LiLH/LcuIwnvLJy8s0S6dVBQAomCK62MtfIAKQ==
   dependencies:
+    "@dbml/parse" "^5.4.0"
+    antlr4 "^4.13.1"
     lodash "^4.17.15"
     parsimmon "^1.13.0"
     pluralize "^8.0.0"
+
+"@dbml/parse@^5.4.0":
+  version "5.4.0"
+  resolved "https://registry.npmjs.org/@dbml/parse/-/parse-5.4.0.tgz"
+  integrity sha512-DlpnuuBRHLvkv87+CS/vYnJbzwhSk00M3QO+A8xlDNKPzvWS6s6m95Eq8mS2dPgeaZnp5hBJ25per49RyQmMEg==
+  dependencies:
+    lodash-es "^4.17.21"
 
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
@@ -2010,6 +2019,11 @@ ansi-styles@^4.1.0:
   integrity sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==
   dependencies:
     color-convert "^2.0.1"
+
+antlr4@^4.13.1:
+  version "4.13.2"
+  resolved "https://registry.npmjs.org/antlr4/-/antlr4-4.13.2.tgz"
+  integrity sha512-QiVbZhyy4xAZ17UPEuG3YTOt8ZaoeOR1CvEAqrEsDBsOqINslaB147i9xqljZqoyf5S+EUlGStaj+t22LT9MOg==
 
 anymatch@~3.1.2:
   version "3.1.3"
@@ -4606,6 +4620,11 @@ locate-path@^7.1.0:
   integrity sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA==
   dependencies:
     p-locate "^6.0.0"
+
+lodash-es@^4.17.21:
+  version "4.17.22"
+  resolved "https://registry.npmjs.org/lodash-es/-/lodash-es-4.17.22.tgz"
+  integrity sha512-XEawp1t0gxSi9x01glktRZ5HDy0HXqrM0x5pXQM98EaI0NxO6jVM7omDOxsuEo5UIASAnm2bRp1Jt/e0a2XU8Q==
 
 lodash.debounce@^4.0.8:
   version "4.0.8"
