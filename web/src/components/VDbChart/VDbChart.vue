@@ -2,7 +2,6 @@
   <svg
     ref="root"
     class="db-chart"
-    @mousemove.passive.capture="updateCursorPosition"
   >
     <defs>
       <pattern id="db-chart__bg-grid-base"
@@ -105,37 +104,6 @@
       </g>
     
     </g>
-    <g id="tools-layer">
-      <svg x="10" y="10" width="150" height="36" class="db-tools">
-        <rect class="db-tools__bg"/>
-        <text x="0" class="db-tools__header">position</text>
-        <text x="0">x:
-          <v-number :value="position.x" decimals="1"/>
-        </text>
-        <text x="75">y:
-          <v-number :value="position.y" decimals="1"/>
-        </text>
-      </svg>
-
-      <svg x="170" y="10" width="150" height="36" class="db-tools">
-        <rect class="db-tools__bg"/>
-        <text x="0" class="db-tools__header">pan</text>
-        <text x="0">x:
-          <v-number :value="store.pan.x" decimals="1"/>
-        </text>
-        <text x="75">y:
-          <v-number :value="store.pan.y" decimals="1"/>
-        </text>
-      </svg>
-
-      <svg x="330" y="10" width="100" height="36" class="db-tools">
-        <rect class="db-tools__bg"/>
-        <text x="0" class="db-tools__header">zoom</text>
-        <text x="0">
-          <v-number :value="store.zoom" decimals="3"/>
-        </text>
-      </svg>
-    </g>
   </svg>
 </template>
 
@@ -215,20 +183,7 @@
     },
   } )
   const panZoom = ref({})
-  const position = reactive({
-    x: 0,
-    y: 0
-  },)
   let initialized = false
-
-  const updateCursorPosition = (e) => {
-    const p = store.inverseCtm.transformPoint({
-      x: e.offsetX,
-      y: e.offsetY
-    })
-    position.x = p.x
-    position.y = p.y
-  }
 
   const saveSizes = () => {
     const s = panZoom.value.getSizes()
