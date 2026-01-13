@@ -7,7 +7,6 @@
 
 <script setup>
   import { computed } from 'vue'
-  import { Database } from '@dbml/core'
 
   const props = defineProps({
     database: Object
@@ -15,7 +14,6 @@
 
   const nodes = computed(() => {
 
-    /** @type {Database} */
     const database = props.database
     return database.schemas.map(schema => ({
       id: `schema-${schema.id}`,
