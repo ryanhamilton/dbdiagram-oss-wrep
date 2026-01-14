@@ -178,8 +178,7 @@
     <q-icon
       class="q-mr-xs"
       size="xs"
-      name="animation"/>
-    <span class="q-mr-xs text-caption">Relationship Animation</span>
+      name="bolt"/>
     <q-toggle
       ref="animation_toggle"
       class="q-ml-sm no-pointer-events"
