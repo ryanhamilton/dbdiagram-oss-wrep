@@ -15,25 +15,24 @@
 
   }
 
-  &__highlight {
-    .db-ref__path {
-      stroke: var(--ref-highlight-color);
-      stroke-width: 3;
-      stroke-dasharray: 10 5;
-      animation: flow 1.5s linear infinite;
-    }
-
-    .db-ref__control-point {
-      display: unset;
-      touch-action: auto;
-    }
-  }
-
+  // Shared animation styles for both highlighted and animated states
+  &__highlight,
   &__animated {
     .db-ref__path {
       stroke-width: 3;
       stroke-dasharray: 10 5;
       animation: flow 1.5s linear infinite;
+    }
+  }
+
+  &__highlight {
+    .db-ref__path {
+      stroke: var(--ref-highlight-color);
+    }
+
+    .db-ref__control-point {
+      display: unset;
+      touch-action: auto;
     }
   }
 
