@@ -173,7 +173,7 @@
   <q-btn
     padding="sm"
     size="md"
-    class="bg-secondary q-mx-xs"
+    class="bg-secondary"
     @click.capture="relationshipAnimation = !relationshipAnimation">
     <q-icon
       class="q-mr-xs"
@@ -192,7 +192,7 @@
   <q-btn
     padding="sm"
     size="md"
-    class="bg-secondary"
+    class="bg-secondary q-mx-xs"
     @click.capture="dark = !dark">
     <q-icon
       class="q-mr-xs"
