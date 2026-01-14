@@ -97,7 +97,7 @@ Components are organized into three main categories:
 - `schema` (Object): Database schema from @dbml/core
 
 **Store Dependencies**:
-- `useChartStore()`: All diagram state
+- `useChartStore()`: Uses tables, refs, zoom, pan, ctm, tooltip, and panel state
 - `useEditorStore()`: For schema updates
 
 **Key Methods**:

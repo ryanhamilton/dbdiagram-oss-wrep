@@ -319,4 +319,4 @@ yarn build
 
 - **Issues**: Check GitHub issues for known problems
 - **Discussions**: Open a discussion for questions
-- **Live Demo**: Test features at https://nomadrazor.github.io/dbdiagram-oss-wrep/
+- **Live Demo**: Test features at https://nomadrazor.github.io/dbdiagram-oss-wrep/ (fork) or https://trudan.github.io/dbdiagram-oss/ (original)
