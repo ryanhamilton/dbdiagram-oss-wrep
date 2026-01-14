@@ -124,9 +124,10 @@ export const useChartStore = defineStore("chart", {
                 } else {
                  
                   state.tables[tableId] = {};
+                  const availablePos = this.findAvailablePosition(220, 32);
                   state.tables[tableId][tfn] = {
-                    x: 0,
-                    y: 0,
+                    x: availablePos.x,
+                    y: availablePos.y,
                     width: 220,
                     height: 32
                   };
@@ -135,9 +136,10 @@ export const useChartStore = defineStore("chart", {
             }
           } else {
             state.tables[tableId] = {}
+            const availablePos = this.findAvailablePosition(220, 32);
             state.tables[tableId][tfn] = {
-              x: 0,
-              y: 0,
+              x: availablePos.x,
+              y: availablePos.y,
               width: 220,
               height: 32
             };
@@ -265,6 +267,77 @@ export const useChartStore = defineStore("chart", {
     }
   },
   actions: {
+    findAvailablePosition(newTableWidth = 220, newTableHeight = 32) {
+      // Helper function to find a position that doesn't overlap with existing tables
+      const spacing = 50; // Spacing between tables
+      const startX = 0;
+      const startY = 0;
+      
+      // Get all existing table positions
+      const existingPositions = [];
+      for (const tableId in this.tables) {
+        const tableData = this.tables[tableId];
+        const tableFn = Object.keys(tableData)[0];
+        if (tableFn) {
+          const table = tableData[tableFn];
+          existingPositions.push({
+            x: table.x,
+            y: table.y,
+            width: table.width,
+            height: table.height
+          });
+        }
+      }
+      
+      // If no tables exist, return starting position
+      if (existingPositions.length === 0) {
+        return { x: startX, y: startY };
+      }
+      
+      // Helper function to check if two rectangles overlap
+      const overlaps = (x1, y1, w1, h1, x2, y2, w2, h2) => {
+        return !(x1 + w1 + spacing < x2 || x2 + w2 + spacing < x1 || 
+                 y1 + h1 + spacing < y2 || y2 + h2 + spacing < y1);
+      };
+      
+      // Try positions in a grid pattern
+      const cols = Math.ceil(Math.sqrt(existingPositions.length + 1));
+      const maxAttempts = 100;
+      let attempt = 0;
+      
+      for (let row = 0; row < maxAttempts && attempt < maxAttempts; row++) {
+        for (let col = 0; col < cols && attempt < maxAttempts; col++) {
+          attempt++;
+          const candidateX = startX + col * (250 + spacing);
+          const candidateY = startY + row * (150 + spacing);
+          
+          // Check if this position overlaps with any existing table
+          let hasOverlap = false;
+          for (const existing of existingPositions) {
+            if (overlaps(
+              candidateX, candidateY, newTableWidth, newTableHeight,
+              existing.x, existing.y, existing.width, existing.height
+            )) {
+              hasOverlap = true;
+              break;
+            }
+          }
+          
+          if (!hasOverlap) {
+            return { x: candidateX, y: candidateY };
+          }
+        }
+      }
+      
+      // Fallback: place to the right of the rightmost table
+      const rightmostTable = existingPositions.reduce((max, table) => 
+        (table.x + table.width > max.x + max.width) ? table : max
+      );
+      return { 
+        x: rightmostTable.x + rightmostTable.width + spacing, 
+        y: rightmostTable.y 
+      };
+    },
     showTooltip(target, component, binds) {
       this.tooltip = {
         x: target.x,
@@ -360,9 +433,10 @@ export const useChartStore = defineStore("chart", {
                 } else {
                  
                   state.tables[tableId] = {};
+                  const availablePos = this.findAvailablePosition(220, 32);
                   state.tables[tableId][tfn] = {
-                    x: 0,
-                    y: 0,
+                    x: availablePos.x,
+                    y: availablePos.y,
                     width: 220,
                     height: 32
                   };
@@ -371,9 +445,10 @@ export const useChartStore = defineStore("chart", {
             }
           } else {
             state.tables[tableId] = {}
+            const availablePos = this.findAvailablePosition(220, 32);
             state.tables[tableId][tfn] = {
-              x: 0,
-              y: 0,
+              x: availablePos.x,
+              y: availablePos.y,
               width: 220,
               height: 32
             };
