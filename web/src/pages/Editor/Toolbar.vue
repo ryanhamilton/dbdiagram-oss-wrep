@@ -65,6 +65,7 @@
       <q-icon
         size="xs"
         name="image"/>
+      <q-tooltip>Export as PNG</q-tooltip>
     </q-btn>
 
     <q-btn
@@ -77,6 +78,7 @@
       <q-icon
         size="xs"
         name="data_object"/>
+      <q-tooltip>Export as JSON</q-tooltip>
     </q-btn>
 
     <q-btn
@@ -89,6 +91,7 @@
       <q-icon
         size="xs"
         name="storage"/>
+      <q-tooltip>Export as MySQL</q-tooltip>
     </q-btn>
 
     <q-btn
@@ -101,6 +104,7 @@
       <q-icon
         size="xs"
         name="database"/>
+      <q-tooltip>Export as PostgreSQL</q-tooltip>
     </q-btn>
 
     <q-btn-dropdown
