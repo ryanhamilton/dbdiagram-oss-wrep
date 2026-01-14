@@ -55,61 +55,53 @@
         name="save"/>
     </q-btn>
 
-    <q-btn-dropdown
-      padding="xs sm"
+    <q-btn
+      padding="sm"
       size="md"
-      color="secondary"
-      class="q-mx-xs"
-      @show="repo.getRepoFiles"
-      
+      class="bg-secondary q-mx-xs"
+      flat
+      @click="showExportDialog('png','png')"
     >
-      <template #label>
-        <q-icon
-        class="q-mr-sm"
-        size="sm"
-        name="cloud_upload"/>
-        to repo
-      </template>
-      <q-list dense>
-        <q-item v-for="rf of repo.getFolders" :key="rf"
-                clickable
-                v-close-popup
-                @click="()=>uploadToRepo(rf)"
-        >
-          <q-item-section>
-            <q-item-label>{{ rf }}</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-btn-dropdown>
+      <q-icon
+        size="xs"
+        name="image"/>
+    </q-btn>
 
-    <q-btn-dropdown
-      padding="xs sm"
+    <q-btn
+      padding="sm"
       size="md"
-      color="secondary"
-      class="q-mx-xs"
-      @show="repo.getRepoFiles"
-      
+      class="bg-secondary q-mx-xs"
+      flat
+      @click="showExportDialog('json','json')"
     >
-      <template #label>
-        <q-icon
-          class="q-mr-sm"
-          size="sm"
-          name="cloud_download"/>
-        from repo
-      </template>
-      <q-list dense>
-        <q-item v-for="rf of repoFiles" :key="rf"
-                clickable
-                v-close-popup
-                @click="()=>downloadFromRepo(rf)"
-        >
-          <q-item-section>
-            <q-item-label>{{ rf }}</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-btn-dropdown>
+      <q-icon
+        size="xs"
+        name="data_object"/>
+    </q-btn>
+
+    <q-btn
+      padding="sm"
+      size="md"
+      class="bg-secondary q-mx-xs"
+      flat
+      @click="showExportDialog('mysql','sql')"
+    >
+      <q-icon
+        size="xs"
+        name="storage"/>
+    </q-btn>
+
+    <q-btn
+      padding="sm"
+      size="md"
+      class="bg-secondary q-mx-xs"
+      flat
+      @click="showExportDialog('pg','sql')"
+    >
+      <q-icon
+        size="xs"
+        name="database"/>
+    </q-btn>
 
     <q-btn-dropdown
       padding="xs sm"
@@ -205,28 +197,17 @@
 </template>
 
 <script setup>
-  import { computed, ref, onMounted } from 'vue'
+  import { computed, ref } from 'vue'
   import { useEditorStore } from 'src/store/editor'
   import { useQuasar } from 'quasar'
   import PreferencesDialog from '../../components/PreferencesDialog'
   import VDbExportDialog from '../../components/VDbExportDialog.vue'
   import { useFilesStore } from '../../store/files'
-import { useRepoStore } from '../../store/repo'
 import VDbImportDialog from '../../components/VDbImportDialog.vue'
 
   const editor = useEditorStore()
   const files = useFilesStore()
   const $q = useQuasar()
-  const repo = useRepoStore();
-onMounted(()=>{
-  setTimeout(()=>{
-    console.log('load from repository');
-    repo.loadRepoConfig();
-    setTimeout(()=>{
-      repo.getRepoFiles();
-    },500);
-},300);
-});
 
  
   const exportOptions = ref([
@@ -307,13 +288,9 @@ onMounted(()=>{
 
   const fileItems = computed(() => files.getFiles)
 
-  const repoFiles = computed(() => repo.getFiles);
-
   const deleteFile = (file) => files.deleteFile(file)
   const newFile = () => files.newFile()
   const saveFile = () => files.saveFile()
-  const uploadToRepo = (folder) => repo.sendInRepo(folder)
-  const downloadFromRepo = (file) => repo.loadFromRepo(file);
   const loadFile = (file) => files.loadFile(file)
 
   const confirmDeleteFile = (file) => {
