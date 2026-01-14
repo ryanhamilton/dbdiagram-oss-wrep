@@ -182,7 +182,7 @@ import { store } from 'quasar/wrappers'
   const applyLeftToRightLayout = () => {
     try {
       const tbls = chart.getTables;
-      const refs = chart.getRefs();
+      const refs = chart.getRefs;
       const elements = Object.keys(tbls);
       
       if (elements.length === 0) return;
@@ -268,7 +268,7 @@ import { store } from 'quasar/wrappers'
   const applySnowflakeLayout = () => {
     try {
       const tbls = chart.getTables;
-      const refs = chart.getRefs();
+      const refs = chart.getRefs;
       const elements = Object.keys(tbls);
       
       if (elements.length === 0) return;
