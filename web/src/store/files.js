@@ -11,6 +11,95 @@ const fs = localforage.createInstance({
   storeName: "files"
 });
 
+const EXAMPLE_DBML = `// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table users {
+  id integer [primary key]
+  username varchar
+  email varchar
+  role varchar
+  created_at timestamp
+}
+
+Table profiles {
+  id integer [primary key]
+  user_id integer [not null]
+  display_name varchar
+  bio text [note: 'Public profile description']
+  created_at timestamp
+}
+
+Table posts as P {
+  id integer [primary key]
+  user_id integer [not null]
+  title varchar
+  body text [note: 'Main post content']
+  status varchar
+  created_at timestamp
+}
+
+Table comments {
+  id integer [primary key]
+  post_id integer [not null]
+  user_id integer [not null]
+  body text
+  created_at timestamp
+}
+
+Table follows {
+  following_user_id integer
+  followed_user_id integer
+  created_at timestamp
+}
+
+Table jobs {
+  id integer [primary key]
+  user_id integer
+  status job_status
+  created_at timestamp
+}
+
+Table "AuditLogs" [headercolor:#884400] {
+  "LogID" integer
+  "Entity" varchar
+  "EntityID" integer
+  "Action" varchar
+  "CreatedAt" timestamp
+}
+
+Ref user_profile: profiles.user_id > users.id // many-to-one
+Ref user_posts: P.user_id > users.id // many-to-one
+Ref post_comments: comments.post_id > P.id // many-to-one
+Ref comment_author: comments.user_id > users.id // many-to-one
+Ref follows_user: follows.following_user_id > users.id
+Ref followed_user: follows.followed_user_id > users.id
+Ref job_owner: jobs.user_id > users.id
+
+TableGroup Core {
+  users
+  profiles
+  follows
+}
+
+TableGroup Content {
+  P
+  comments
+}
+
+TableGroup Operations {
+  jobs
+  "AuditLogs"
+}
+
+enum job_status {
+  created [note: 'Waiting to be processed']
+  running
+  done
+  failure
+}
+`;
+
 
 export const useFilesStore = defineStore("files", {
   state: () => ({
@@ -137,6 +226,27 @@ export const useFilesStore = defineStore("files", {
         this.currentFile = newName;
       }
       this.loadFileList();
+    },
+    openExample() {
+      this.$patch({
+        currentFile: undefined
+      });
+
+      const editor = useEditorStore();
+      const chart = useChartStore();
+
+      editor.$reset();
+      chart.$reset();
+      
+      // Load the example DBML content
+      editor.load({
+        source: {
+          format: "dbml",
+          text: EXAMPLE_DBML
+        }
+      });
+      
+      this.saveFile("Example");
     }
   }
 });

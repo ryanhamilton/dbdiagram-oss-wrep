@@ -41,6 +41,14 @@
             <q-item-label class="text-italic">Create New File</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable
+                dense
+                @click="openExample"
+        >
+          <q-item-section>
+            <q-item-label class="text-italic">Open Example</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-btn-dropdown>
 
