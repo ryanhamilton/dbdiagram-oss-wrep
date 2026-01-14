@@ -90,6 +90,7 @@
   import { useChartStore } from '../../store/chart'
   import { snap } from '../../utils/MathUtil'
   import VDbRefActions from './VDbRefActions.vue'
+  import VDbHeadColorTip from './VDbHeadColorTip.vue'
 
   const props = defineProps({
     id: Number,
@@ -407,11 +408,9 @@
       y: colorIconPosition.value.y - 10,
     }
     
-    import('./VDbHeadColorTip.vue').then(module => {
-      store.showPanel(tooltipPosition, module.default, {
-        ref: { id: props.id, name: props.name },
-        isRef: true
-      })
+    store.showPanel(tooltipPosition, VDbHeadColorTip, {
+      ref: { id: props.id, name: props.name },
+      isRef: true
     })
   }
 
