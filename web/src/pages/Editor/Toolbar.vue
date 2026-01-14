@@ -55,6 +55,18 @@
         name="save"/>
     </q-btn>
 
+    <q-btn
+      padding="sm"
+      size="md"
+      class="bg-secondary q-mx-xs"
+      @click="instantPngDownload"
+      aria-label="Download PNG"
+    >
+      <q-icon
+        size="xs"
+        name="image"/>
+    </q-btn>
+
     <q-btn-dropdown
       padding="xs sm"
       size="md"
@@ -77,6 +89,9 @@
                 @click="showExportDialog(exportOption.id,exportOption.ext)"
                 dense
         >
+          <q-item-section avatar>
+            <q-icon :name="exportOption.icon" />
+          </q-item-section>
           <q-item-section>
             <q-item-label>{{ exportOption.label }}</q-item-label>
           </q-item-section>
@@ -104,6 +119,9 @@
                 @click="importFile(importOption.id,importOption.ext)"
                 dense
         >
+          <q-item-section avatar>
+            <q-icon :name="importOption.icon" />
+          </q-item-section>
           <q-item-section>
             <q-item-label>{{ importOption.label }}</q-item-label>
           </q-item-section>
@@ -175,7 +193,8 @@
   import PreferencesDialog from '../../components/PreferencesDialog'
   import VDbExportDialog from '../../components/VDbExportDialog.vue'
   import { useFilesStore } from '../../store/files'
- import VDbImportDialog from '../../components/VDbImportDialog.vue'
+  import VDbImportDialog from '../../components/VDbImportDialog.vue'
+  import { savePng } from '../../utils/exportUtil'
 
   const editor = useEditorStore()
   const files = useFilesStore()
@@ -187,37 +206,44 @@
     {
       id: 'json',
       label: 'Json',
-      ext:"json"
+      ext:"json",
+      icon: "code"
     },
     {
       id: 'svg',
       label: 'SVG',
-      ext:"svg"
+      ext:"svg",
+      icon: "image"
     },
     {
       id: 'png',
       label: 'PNG',
-      ext:"png"
+      ext:"png",
+      icon: "image"
     },
     {
       id: 'dbml',
       label: 'DBML',
-      ext:"dbml"
+      ext:"dbml",
+      icon: "description"
     },
     {
       id: 'pg',
       label: 'PostgreSQL',
-      ext:"sql"
+      ext:"sql",
+      icon: "storage"
     },
     {
       id: 'mssql',
       label: 'MSSQL',
-      ext:"sql"
+      ext:"sql",
+      icon: "storage"
     },
     {
       id: 'mysql',
       label: 'MySQL',
-      ext:"sql"
+      ext:"sql",
+      icon: "storage"
     }
   ])
 
@@ -225,27 +251,32 @@
     {
       id: 'json',
       label: 'Json',
-      ext:'json'
+      ext:'json',
+      icon: "code"
     },
     {
       id: 'dbml',
       label: 'DBML',
-      ext: 'txt'
+      ext: 'txt',
+      icon: "description"
     },
     {
       id: 'postgres',
       label: 'PostgreSQL',
-      ext:'sql'
+      ext:'sql',
+      icon: "storage"
     },
     {
       id: 'mysql',
       label: 'MySQL',
-      ext: 'sql'
+      ext: 'sql',
+      icon: "storage"
     },
     {
       id: 'mssql',
       label: 'MSSQL',
-      ext: 'sql'
+      ext: 'sql',
+      icon: "storage"
     }
   ])
 
@@ -332,6 +363,28 @@
       },
     })
 
+  }
+  
+  const instantPngDownload = () => {
+    const now = new Date()
+    const timestamp = now.getFullYear().toString() + 
+      (now.getMonth() + 1).toString().padStart(2, '0') + 
+      now.getDate().toString().padStart(2, '0') + '-' +
+      now.getHours().toString().padStart(2, '0') + 
+      now.getMinutes().toString().padStart(2, '0') + 
+      now.getSeconds().toString().padStart(2, '0')
+    const fileName = `db-diagram-${timestamp}.png`
+    const resolution = ref(300)
+    
+    savePng(fileName, resolution)
+    
+    $q.notify({
+      caption: "Export",
+      message: `PNG file ${fileName} successfully exported`,
+      color: 'green',
+      icon: 'task',
+      position: 'bottom-right'
+    })
   }
   
   
