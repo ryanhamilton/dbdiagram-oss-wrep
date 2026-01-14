@@ -58,15 +58,20 @@
 
     // Check if we should auto-fit the diagram (from paste page)
     if (route.query.autofit === 'true') {
-      // Wait for the chart to be loaded and rendered
-      nextTick(() => {
-        // Small delay to ensure tables are rendered
-        setTimeout(() => {
-          if (graphRef.value && chart.loaded) {
-            graphRef.value.applyScaleToFit()
+      // Watch for chart to be loaded and tables to be rendered
+      const unwatch = watch(
+        () => chart.loaded,
+        (isLoaded) => {
+          if (isLoaded && graphRef.value) {
+            // Use nextTick to ensure DOM has updated
+            nextTick(() => {
+              graphRef.value.applyScaleToFit()
+              unwatch() // Stop watching after auto-fit is applied
+            })
           }
-        }, 500)
-      })
+        },
+        { immediate: true }
+      )
     }
   })
   const sourceText = computed({
