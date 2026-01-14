@@ -160,10 +160,18 @@ export const useEditorStore = defineStore("editor", {
     extractNotes(dbmlText) {
       // Regular expression to match Note blocks
       // Format: Note noteName { '''content''' } or Note noteName { 'content' }
-      const noteRegex = /Note\s+(\w+)\s*\{\s*'''([^]*?)'''\s*\}|Note\s+(\w+)\s*\{\s*'([^]*?)'\s*\}/gi;
+      // Match triple quotes first, then single quotes
+      const noteRegex = /Note\s+(\w+)\s*\{\s*'''([\s\S]*?)'''\s*\}|Note\s+(\w+)\s*\{\s*'([\s\S]*?)'\s*\}/gi;
       const extractedNotes = {};
       let match;
       let noteIndex = 0;
+      
+      // Default note dimensions and positioning
+      const DEFAULT_NOTE_X = 50;
+      const DEFAULT_NOTE_Y = 50;
+      const NOTE_OFFSET = 50;
+      const DEFAULT_NOTE_WIDTH = 200;
+      const DEFAULT_NOTE_HEIGHT = 150;
       
       // Extract all notes
       while ((match = noteRegex.exec(dbmlText)) !== null) {
@@ -173,10 +181,10 @@ export const useEditorStore = defineStore("editor", {
           id: `note_${noteIndex}`,
           name: noteName,
           content: noteContent.trim(),
-          x: 50 + (noteIndex * 50), // Offset notes slightly
-          y: 50 + (noteIndex * 50),
-          width: 200,
-          height: 150
+          x: DEFAULT_NOTE_X + (noteIndex * NOTE_OFFSET),
+          y: DEFAULT_NOTE_Y + (noteIndex * NOTE_OFFSET),
+          width: DEFAULT_NOTE_WIDTH,
+          height: DEFAULT_NOTE_HEIGHT
         };
         noteIndex++;
       }
