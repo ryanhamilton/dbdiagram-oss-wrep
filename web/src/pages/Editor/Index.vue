@@ -27,7 +27,7 @@
   import { useEditorStore } from 'src/store/editor'
   import { useChartStore } from 'src/store/chart'
   import { debounce, throttle, useQuasar } from 'quasar'
-  import { useRoute } from 'vue-router'
+  import { useRoute, useRouter } from 'vue-router'
 
   const editorRef = ref(null)
   const graphRef = ref(null)
@@ -35,6 +35,34 @@
   const chart = useChartStore()
   const q = useQuasar()
   const route = useRoute()
+  const router = useRouter()
+  // URL parameter management
+  const MAX_URL_LENGTH = 1900
+  
+  // Debounced function to update URL with code
+  const updateUrlWithCode = debounce((code) => {
+    if (!code) return
+    
+    // Encode the code for URL
+    const encodedCode = encodeURIComponent(code)
+    
+    // Only update URL if encoded length is within limit
+    if (encodedCode.length <= MAX_URL_LENGTH) {
+      router.replace({ 
+        path: route.path,
+        query: { ...route.query, code: encodedCode }
+      })
+    } else {
+      // Remove code from URL if it's too long
+      const newQuery = { ...route.query }
+      delete newQuery.code
+      router.replace({ 
+        path: route.path,
+        query: newQuery
+      })
+    }
+  }, 500) // Debounce for 500ms
+
   function touchHandler(event) {
         var touch = event.changedTouches[0];
         var simulatedEvent = document.createEvent("MouseEvent");
@@ -56,8 +84,19 @@
     document.addEventListener("touchend", touchHandler, true);
     document.addEventListener("touchcancel", touchHandler, true);
 
-    // Check if we should auto-fit the diagram (from paste page)
-    if (route.query.autofit === 'true') {
+    // Load code from URL if present
+    if (route.query.code) {
+      try {
+        const decodedCode = decodeURIComponent(route.query.code)
+        editor.updateSourceText(decodedCode)
+        editor.updateDatabase()
+      } catch (e) {
+        console.error('Failed to decode code from URL:', e)
+      }
+    }
+
+    // Check if we should auto-fit the diagram (from paste page or URL)
+    if (route.query.autofit === 'true' || route.query.code) {
       // Watch for chart to be loaded and tables to be rendered
       const unwatch = watch(
         () => chart.loaded,
@@ -74,6 +113,14 @@
       )
     }
   })
+  
+  // Watch for source text changes to update URL
+  watch(
+    () => editor.getSourceText,
+    (newCode) => {
+      updateUrlWithCode(newCode)
+    }
+  )
   const sourceText = computed({
     get: () => editor.getSourceText,
     set: (src) => editor.updateSourceText(src)

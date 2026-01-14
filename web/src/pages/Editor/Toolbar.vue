@@ -59,6 +59,18 @@
       padding="sm"
       size="md"
       class="bg-secondary q-mx-xs"
+      @click="copyShareableLink"
+      aria-label="Copy Shareable Link"
+    >
+      <q-icon
+        size="xs"
+        name="share"/>
+    </q-btn>
+
+    <q-btn
+      padding="sm"
+      size="md"
+      class="bg-secondary q-mx-xs"
       @click="instantPngDownload"
       aria-label="Download PNG"
     >
@@ -389,6 +401,56 @@
       color: 'green',
       icon: 'task',
       position: 'bottom-right'
+    })
+  }
+  
+  const copyShareableLink = () => {
+    const code = editor.getSourceText
+    if (!code || !code.trim()) {
+      $q.notify({
+        message: 'No code to share',
+        color: 'warning',
+        icon: 'warning',
+        position: 'bottom-right'
+      })
+      return
+    }
+    
+    // Encode the code for URL
+    const encodedCode = encodeURIComponent(code)
+    
+    // Check if the encoded code fits within the limit
+    if (encodedCode.length > 1900) {
+      $q.notify({
+        message: 'Code is too long to share via URL (limit: 1900 characters when encoded)',
+        color: 'warning',
+        icon: 'warning',
+        position: 'bottom-right',
+        timeout: 3000
+      })
+      return
+    }
+    
+    // Build the shareable URL
+    const baseUrl = window.location.origin + window.location.pathname
+    const shareableUrl = `${baseUrl}?code=${encodedCode}`
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(shareableUrl).then(() => {
+      $q.notify({
+        message: 'Shareable link copied to clipboard!',
+        color: 'green',
+        icon: 'check',
+        position: 'bottom-right'
+      })
+    }).catch((err) => {
+      console.error('Failed to copy link:', err)
+      $q.notify({
+        message: 'Failed to copy link to clipboard',
+        color: 'negative',
+        icon: 'error',
+        position: 'bottom-right'
+      })
     })
   }
   
