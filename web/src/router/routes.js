@@ -17,6 +17,16 @@ const routes = [
       }
     ]
   },
+  {
+    path: "/paste",
+    component: () => import("layouts/SimpleLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("pages/Paste.vue")
+      }
+    ]
+  },
 
   // Always leave this as last one,
   // but you can also remove it

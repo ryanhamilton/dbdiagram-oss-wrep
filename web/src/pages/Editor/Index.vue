@@ -11,6 +11,7 @@
       </template>
       <template #after>
         <dbml-graph
+          ref="graphRef"
           class="db-graph-view"
           :schema="schema"
         />
@@ -26,10 +27,14 @@
   import { useEditorStore } from 'src/store/editor'
   import { useChartStore } from 'src/store/chart'
   import { debounce, throttle, useQuasar } from 'quasar'
+  import { useRoute } from 'vue-router'
 
   const editorRef = ref(null)
+  const graphRef = ref(null)
   const editor = useEditorStore()
+  const chart = useChartStore()
   const q = useQuasar()
+  const route = useRoute()
   function touchHandler(event) {
         var touch = event.changedTouches[0];
         var simulatedEvent = document.createEvent("MouseEvent");
@@ -43,13 +48,26 @@
             false, false, false, 0, null);
         touch.target.dispatchEvent(simulatedEvent);
         
-    };
+    }
   onMounted(()=>{
     
     document.addEventListener("touchstart", touchHandler, true);
     document.addEventListener("touchmove", touchHandler, true);
     document.addEventListener("touchend", touchHandler, true);
     document.addEventListener("touchcancel", touchHandler, true);
+
+    // Check if we should auto-fit the diagram (from paste page)
+    if (route.query.autofit === 'true') {
+      // Wait for the chart to be loaded and rendered
+      nextTick(() => {
+        // Small delay to ensure tables are rendered
+        setTimeout(() => {
+          if (graphRef.value && chart.loaded) {
+            graphRef.value.applyScaleToFit()
+          }
+        }, 500)
+      })
+    }
   })
   const sourceText = computed({
     get: () => editor.getSourceText,
