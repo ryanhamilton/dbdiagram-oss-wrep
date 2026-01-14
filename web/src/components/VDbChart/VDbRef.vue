@@ -122,7 +122,7 @@
 
   // Get custom color for this ref
   const customRefColor = computed(() => store.getRefColor(props.id))
-  const refColor = computed(() => customRefColor.value || '')
+  const refColor = computed(() => customRefColor.value || null)
 
   const getVisibleFields = (table) => {
     const level = store.getDetailLevel;
