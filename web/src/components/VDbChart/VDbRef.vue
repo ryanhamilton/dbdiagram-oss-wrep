@@ -14,12 +14,12 @@
     <path
       class="db-ref__hitbox"
       :d="path"
-      :style="refColor ? `stroke: ${refColor};` : ''"
+      :style="refColor ? `stroke: ${refColor} !important;` : ''"
     />
     <path
       class="db-ref__path"
       :d="path"
-      :style="refColor ? `stroke: ${refColor};` : ''"
+      :style="refColor ? `stroke: ${refColor} !important;` : ''"
     />
 
     <text :class="{
