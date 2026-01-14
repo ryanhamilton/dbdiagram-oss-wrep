@@ -37,7 +37,12 @@ import {ref} from 'vue'
   const props = defineProps({
     table: Object,
     tableGroup: Object,
+    ref: Object,
     isTableGroup: {
+      type: Boolean,
+      default: false
+    },
+    isRef: {
       type: Boolean,
       default: false
     }
@@ -54,10 +59,12 @@ import {ref} from 'vue'
               ['#990D0D','#CA4242','#DE65C3','#6724BB','#A15CF5']];
   
   const setColor = (e,color) => { 
-    if (props.isTableGroup && props.tableGroup) {
-      emit('click:color-block',e, props.tableGroup.id, props.tableGroup.name, color, null, true)
+    if (props.isRef && props.ref) {
+      emit('click:color-block', e, props.ref.id, props.ref.name, color, null, false, true)
+    } else if (props.isTableGroup && props.tableGroup) {
+      emit('click:color-block',e, props.tableGroup.id, props.tableGroup.name, color, null, true, false)
     } else if (props.table) {
-      emit('click:color-block',e, props.table.id, props.table.name, color, props.table.schema.name, false)
+      emit('click:color-block',e, props.table.id, props.table.name, color, props.table.schema.name, false, false)
     }
   };
   

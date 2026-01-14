@@ -57,6 +57,23 @@
     }
 
   }
+
+  &__color-icon {
+    cursor: pointer;
+    opacity: 0.9;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &__icon-bg {
+    opacity: 0.85;
+  }
+
+  &__icon {
+    pointer-events: none;
+  }
 }
 
 @keyframes flow-direction {

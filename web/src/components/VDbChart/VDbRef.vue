@@ -14,14 +14,10 @@
     <path
       class="db-ref__hitbox"
       :d="path"
-      @click="showColorPicker"
-      @contextmenu.prevent="showColorPicker"
     />
     <path
       class="db-ref__path"
       :d="path"
-      @click="showColorPicker"
-      @contextmenu.prevent="showColorPicker"
     />
 
     <text :class="{
@@ -57,8 +53,15 @@
               @mousedown.passive="controlPoint_startDrag"
               @mouseenter.passive="controlPoint_onMouseEnter"
               @mouseleave.passive="controlPoint_onMouseLeave"
-              @contextmenu.prevent="showColorPicker"
       />
+    </g>
+
+    <!-- Color icon similar to table header -->
+    <g class="db-ref__color-icon" v-show="palette_icon" @click.passive="onColorIconClick" @touchend.passive="onColorIconClick">
+      <rect class="db-ref__icon-bg" :fill="customColor || '#1976d2'" :x="colorIconPos.x" :y="colorIconPos.y - 18" height="35" width="25" rx="3" />
+      <svg class="db-ref__icon" xmlns="http://www.w3.org/2000/svg" :x="colorIconPos.x + 2.5" :y="colorIconPos.y - 10" height="20" viewBox="0 -960 960 960" width="20">
+        <path fill="white" d="m247-904 57-56 343 343q23 23 23 57t-23 57L457-313q-23 23-57 23t-57-23L153-503q-23-23-23-57t23-57l190-191-96-96Zm153 153L209-560h382L400-751Zm360 471q-33 0-56.5-23.5T680-360q0-21 12.5-45t27.5-45q9-12 19-25t21-25q11 12 21 25t19 25q15 21 27.5 45t12.5 45q0 33-23.5 56.5T760-280ZM80 0v-160h800V0H80Z"/>
+      </svg>
     </g>
 
   </g>
@@ -68,6 +71,7 @@
   import { computed, nextTick, onBeforeUnmount, onMounted, onUpdated, reactive, ref, watch, watchEffect } from 'vue'
   import { useChartStore } from '../../store/chart'
   import { snap } from '../../utils/MathUtil'
+  import VDbHeadColorTip from './VDbHeadColorTip.vue'
   import VDbRefActions from './VDbRefActions.vue'
 
   const props = defineProps({
@@ -93,10 +97,14 @@
   const gridSnap = store.grid.snap
 
   const highlight = ref(false)
+  const palette_icon = ref(false)
   const affectedTables = ref([])
   const d = ref('')
   
-  const customColor = computed(() => store.getRefColor(props.id))
+  const customColor = computed(() => {
+    // Check if color is defined in DBML (token.color) or store
+    return props.token?.color || store.getRefColor(props.id)
+  })
 
   const getVisibleFields = (table) => {
     const level = store.getDetailLevel;
@@ -335,7 +343,7 @@
 
   const path = computed(() => {
     const startElAnchors = startAnchors.value
-    const endElAnchors = endAnchors.value
+    const endElAnchors = endElAnchors.value
 
     const points = s.vertices
     if (points.length == 0 || points.some(p => Number.isNaN(p.x) || Number.isNaN(p.y))) return ``
@@ -345,11 +353,25 @@
     return `M ${start.x},${start.y} L ${points.map(p => (`${p.x},${p.y}`)).join(' ')} L ${end.x} ${end.y}`
   })
 
+  const colorIconPos = computed(() => {
+    // Position the color icon at the midpoint of the first segment
+    const points = s.vertices
+    if (points.length > 0 && !points.some(p => Number.isNaN(p.x) || Number.isNaN(p.y))) {
+      return {
+        x: points[0].x + 5,
+        y: points[0].y
+      }
+    }
+    return { x: 0, y: 0 }
+  })
+
   const onMouseEnter = (e) => {
     highlight.value = true
+    palette_icon.value = true
   }
   const onMouseLeave = (e) => {
     highlight.value = false
+    palette_icon.value = false
   }
 
   const controlPoint_highlighted = ref(null)
@@ -408,19 +430,18 @@
 
   }
 
-  const showColorPicker = (e) => {
-    const p = store.inverseCtm.transformPoint({
-      x: e.offsetX,
-      y: e.offsetY
-    })
+  const onColorIconClick = (e) => {
     const tooltipPosition = {
-      x: p.x + 10,
-      y: p.y,
+      x: colorIconPos.value.x + 30,
+      y: colorIconPos.value.y,
     }
-   // console.log(e.target)
-   store.showRefPanel(tooltipPosition, VDbRefActions, {click:p, wpid:e.target.dataset.id, data:props})
-   emit('click:ref', e, s);
-    
+    // Show the color picker panel - reusing the same HeadColorTip component
+    // but passing ref instead of table
+    store.showPanel(tooltipPosition, VDbHeadColorTip, {
+      ref: props,
+      isRef: true
+    })
+    emit('click:ref', e, s);
   }
 
   const controlPoint_drop = (e) => {

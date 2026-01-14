@@ -366,8 +366,10 @@
    store.hideRefPanel();
  }
 
-  function onColorClick (e, id, name, color, schema, isTableGroup) {
-    if (isTableGroup) {
+  function onColorClick (e, id, name, color, schema, isTableGroup, isRef) {
+    if (isRef) {
+      store.updateRefColor(id, color);
+    } else if (isTableGroup) {
       store.updateTableGroupColor(id, color);
     } else {
       store.updateTableColor(name, id, color, schema);
