@@ -62,11 +62,12 @@ This document describes the technical architecture of dbdiagram-oss-wrep.
   - Modular stores
 
 #### Diagram Library
-- **JointJS** (via @clientIO/joint)
+- **Custom SVG rendering**
   - SVG-based diagrams
   - Interactive elements
-  - Connection routing
-  - Graph algorithms
+  - Custom connection routing
+  - Pan/zoom functionality
+  - Note: JointJS CSS classes are referenced but the library itself may not be a direct dependency
 
 #### Code Editor
 - **Ace Editor** (v1.4.14)

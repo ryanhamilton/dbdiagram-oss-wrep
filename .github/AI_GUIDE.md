@@ -19,7 +19,7 @@ This is a fork of TruDan/dbdiagram-oss with additional features like auto-layout
 - **Vue 3** - Progressive JavaScript framework (Composition API)
 - **Quasar v2** - Vue.js framework for building responsive applications
 - **Pinia** - State management (Vue 3 store)
-- **JointJS** - Diagramming library for rendering database relationships
+- **Custom SVG rendering** - Direct SVG manipulation for rendering database relationships
 - **@dbml/core** - DBML parser and SQL exporter
 - **Ace Editor** - Code editor for DBML syntax
 - **AWS SDK** - S3 integration for diagram storage
@@ -226,4 +226,4 @@ Note: No automated tests currently exist (`test` script is a no-op)
 
 - Check existing issues on GitHub
 - Review demo videos in `.github/media/`
-- Test on live demo: https://nomadrazor.github.io/dbdiagram-oss-wrep/
+- Test on live demo: https://nomadrazor.github.io/dbdiagram-oss-wrep/ (fork) or https://trudan.github.io/dbdiagram-oss/ (original)
