@@ -200,8 +200,9 @@
   const files = useFilesStore()
   const $q = useQuasar()
 
+  // Default PNG resolution for instant downloads
+  const DEFAULT_PNG_RESOLUTION = 300
 
- 
   const exportOptions = ref([
     {
       id: 'json',
@@ -365,16 +366,20 @@
 
   }
   
-  const instantPngDownload = () => {
+  const generateTimestamp = () => {
     const now = new Date()
-    const timestamp = now.getFullYear().toString() + 
+    return now.getFullYear().toString() + 
       (now.getMonth() + 1).toString().padStart(2, '0') + 
       now.getDate().toString().padStart(2, '0') + '-' +
       now.getHours().toString().padStart(2, '0') + 
       now.getMinutes().toString().padStart(2, '0') + 
       now.getSeconds().toString().padStart(2, '0')
+  }
+
+  const instantPngDownload = () => {
+    const timestamp = generateTimestamp()
     const fileName = `db-diagram-${timestamp}.png`
-    const resolution = ref(300)
+    const resolution = ref(DEFAULT_PNG_RESOLUTION)
     
     savePng(fileName, resolution)
     
