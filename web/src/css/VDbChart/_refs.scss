@@ -18,6 +18,9 @@
   &__highlight {
     .db-ref__path {
       stroke: var(--ref-highlight-color);
+      stroke-width: 3;
+      stroke-dasharray: 10 5;
+      animation: flow 1.5s linear infinite;
     }
 
     .db-ref__control-point {
