@@ -140,18 +140,59 @@ export const useEditorStore = defineStore("editor", {
     updateDatabase() {
       console.log("updating database...");
       try {
-        const database = Parser.parse(this.source.text, this.source.format);
+        // Extract notes from DBML before parsing
+        const { cleanedDbml, extractedNotes } = this.extractNotes(this.source.text);
+        
+        const database = Parser.parse(cleanedDbml, this.source.format);
         database.normalize();
         this.database = database;
         this.clearParserError();
         console.log("updated database",database);
         const chart = useChartStore();
         chart.loadDatabase(database);
+        chart.loadNotes(extractedNotes);
       } catch (e) {
         // do nothing
         console.error('update database error',e);
         this.updateParserError(e);
       }
+    },
+    extractNotes(dbmlText) {
+      // Regular expression to match Note blocks
+      // Format: Note noteName { '''content''' } or Note noteName { 'content' }
+      // Match triple quotes first, then single quotes
+      const noteRegex = /Note\s+(\w+)\s*\{\s*'''([\s\S]*?)'''\s*\}|Note\s+(\w+)\s*\{\s*'([\s\S]*?)'\s*\}/gi;
+      const extractedNotes = {};
+      let match;
+      let noteIndex = 0;
+      
+      // Default note dimensions and positioning
+      const DEFAULT_NOTE_X = 50;
+      const DEFAULT_NOTE_Y = 50;
+      const NOTE_OFFSET = 50;
+      const DEFAULT_NOTE_WIDTH = 200;
+      const DEFAULT_NOTE_HEIGHT = 150;
+      
+      // Extract all notes
+      while ((match = noteRegex.exec(dbmlText)) !== null) {
+        const noteName = match[1] || match[3];
+        const noteContent = match[2] || match[4];
+        extractedNotes[`note_${noteIndex}`] = {
+          id: `note_${noteIndex}`,
+          name: noteName,
+          content: noteContent.trim(),
+          x: DEFAULT_NOTE_X + (noteIndex * NOTE_OFFSET),
+          y: DEFAULT_NOTE_Y + (noteIndex * NOTE_OFFSET),
+          width: DEFAULT_NOTE_WIDTH,
+          height: DEFAULT_NOTE_HEIGHT
+        };
+        noteIndex++;
+      }
+      
+      // Remove notes from DBML text
+      const cleanedDbml = dbmlText.replace(noteRegex, '').trim();
+      
+      return { cleanedDbml, extractedNotes };
     },
     updatePreferences(preferences) {
       this.$patch({

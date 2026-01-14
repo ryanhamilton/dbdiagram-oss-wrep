@@ -321,6 +321,11 @@ import { store } from 'quasar/wrappers'
     chart.toggleGridVisibility();
   }
 
+  // Expose methods for parent components
+  defineExpose({
+    applyScaleToFit
+  })
+
 </script>
 
 <style scoped lang="scss">
