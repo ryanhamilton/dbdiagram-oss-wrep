@@ -54,7 +54,7 @@ export function savePng(filename,resolution) {
         canvas.width = image.width * scaleFactor;
         canvas.height = image.height * scaleFactor;
         var context = canvas.getContext('2d');
-        context.setTransform(scaleFactor,0,0,scaleFactor,0,0);
+        context.setTransform(scaleFactor, 0, 0, scaleFactor, 0, 0);
         context.drawImage(image, 0, 0);
         var a = document.createElement('a');
         a.download = filename;
