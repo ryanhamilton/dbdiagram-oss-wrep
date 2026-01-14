@@ -64,6 +64,7 @@
                   :key="ref.id"
                   v-bind="ref"
                   :container-ref="root"
+                  :animated="editor.getRelationshipAnimation"
                   @click:ref="dblclickHelper(onRefDblClick, $event, ref)"
                   @click.passive="dblclickHelper(onRefDblClick, $event, ref)"
                   @mouseenter.passive="onRefMouseEnter"
@@ -113,12 +114,14 @@
   import VDbRef from './VDbRef'
   import svgPanZoom, { pan } from 'svg-pan-zoom'
   import { useChartStore } from '../../store/chart'
+  import { useEditorStore } from '../../store/editor'
   import VDbTooltip from './VDbTooltip'
   import VDbPanel from './VDbPanel.vue'
   import VDbRefPanel from './VDbRefPanel.vue'
   import VDbTableGroup from './VDbTableGroup'
 
   const store = useChartStore()
+  const editor = useEditorStore()
 
   const props = defineProps({
     tableGroups: {
