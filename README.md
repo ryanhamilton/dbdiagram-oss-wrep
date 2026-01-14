@@ -1,9 +1,32 @@
 
-# dbdiagram-oss
+# database-diagram-oss
 
-An Open Source alternative to dbdiagram.io, aiming to have the same basic features+more. Motivation behind the project was that $9/month overpriced subscription for just some **very VERY** basic features. (dark mode/header colours/table groups)
+Open Source Database Diagram Generator.
+Enables generating diagram from DBML, MySQL, PostgreSQL, MSSQL.
+
+
+## Screenshots
+
+![Demo GIF](https://raw.githubusercontent.com/TruDan/dbdiagram-oss/master/.github/media/demo.gif)
+
+
+## Live Demo
+
+Fork demo [nomadrazor.github.io/dbdiagram-oss-wrep](https://nomadrazor.github.io/dbdiagram-oss-wrep/)
+
 
 ## Forked Info
+
+### January 2026
+
++ 1. Add TableHeader color and TableGroup color support.
++ 2. Add Grid Toggle
++ 3. Add Diagram Detail levels
++ 4. Add Relationship animation toggle.
++ 5. Add PNG download button that creates named file automatically. FIx PNG zoom.
++ 6. Improve Auto-Layout mechanism
++ 7. Upgrade @dbml/core from 2.3.1 to 5.4.0
++ 8. Add Note support.
 
 #### Actual docker version: 2.4.2
 
@@ -46,25 +69,6 @@ An Open Source alternative to dbdiagram.io, aiming to have the same basic featur
 + 25. Added export to DBML, SQL (Postgres, MSSQL, MySQL)
 + 26. Added import from SQL (Postgres)
 
-## Architecture - Solution
-
-![Arch](https://raw.githubusercontent.com/NomadRazor/dbdiagram-oss-wrep/master/.github/media/arch.png)
-
-## Repository settings demo
-
-https://github.com/NomadRazor/dbdiagram-oss-wrep/assets/36404538/d7893336-13b5-431a-97d1-2cddc6073aec
-
-## Tooltips demo
-
-https://github.com/NomadRazor/dbdiagram-oss-wrep/assets/36404538/261f2283-af2b-4044-8d98-80d70270ef43
-
-
-## Live Demo
-
-Fork demo [nomadrazor.github.io/dbdiagram-oss-wrep](https://nomadrazor.github.io/dbdiagram-oss-wrep/)
-
-View the latest master branch at [trudan.github.io/dbdiagram-oss](https://trudan.github.io/dbdiagram-oss/)
-
 
 ## Documentation
 
@@ -99,11 +103,6 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup instructions.
 [MIT](https://choosealicense.com/licenses/mit/)
 
 
-## Screenshots
-
-![Demo GIF](https://raw.githubusercontent.com/TruDan/dbdiagram-oss/master/.github/media/demo.gif)
-
-
 ## Related
 
 [quasar](https://quasar.dev/) - Awesome VueJS framework
@@ -114,6 +113,5 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup instructions.
 
 [dbdiagram.io](https://dbdiagram.io/home) - Original DBDiagram tool
 
-[dbdocs.io](https://dbdocs.io/) - Documentation generator for DBML
 
 
