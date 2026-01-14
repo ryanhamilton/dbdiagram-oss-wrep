@@ -174,6 +174,7 @@
     padding="sm"
     size="md"
     class="bg-secondary q-mx-xs"
+    aria-label="Toggle relationship animation"
     @click.capture="relationshipAnimation = !relationshipAnimation">
     <q-icon
       class="q-mr-xs"
