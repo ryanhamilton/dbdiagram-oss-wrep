@@ -24,6 +24,7 @@
   import DbmlEditor from 'components/DbmlEditor'
   import DbmlGraph from 'components/DbmlGraph'
   import { useEditorStore } from 'src/store/editor'
+  import { useChartStore } from 'src/store/chart'
   import { debounce, throttle, useQuasar } from 'quasar'
 
   const editorRef = ref(null)
@@ -69,7 +70,8 @@
       tableGroups:[],
       tables:[],
       refs:[],
-      schemes:[]
+      schemes:[],
+      notes:[]
     }
     editor.getDatabase?.schemas?.forEach(x => {
       single_schema.schemes.push({
@@ -80,6 +82,10 @@
       single_schema.tables = single_schema.tables.concat(x.tables);
       single_schema.refs = single_schema.refs.concat(x.refs);
     });
+    
+    // Add notes from chart store
+    const chart = useChartStore();
+    single_schema.notes = Object.values(chart.getNotes);
 
     return single_schema;
     })

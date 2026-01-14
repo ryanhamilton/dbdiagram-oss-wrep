@@ -86,6 +86,14 @@
         />
        
       </g>
+      <g id="notes-layer"
+         v-if="store.loaded">
+        <v-db-note v-for="note of notes"
+                   :key="note.id"
+                   v-bind="note"
+                   :container-ref="root"
+        />
+      </g>
       <g id="overlays-layer"
          v-if="store.loaded">
         <v-db-tooltip/>
@@ -112,6 +120,7 @@
   import { computed, nextTick, onMounted, reactive, ref, watch, watchEffect } from 'vue'
   import VDbTable from './VDbTable'
   import VDbRef from './VDbRef'
+  import VDbNote from './VDbNote'
   import svgPanZoom, { pan } from 'svg-pan-zoom'
   import { useChartStore } from '../../store/chart'
   import { useEditorStore } from '../../store/editor'
@@ -133,6 +142,10 @@
       default: () => ([])
     },
     refs: {
+      type: Array,
+      default: () => ([])
+    },
+    notes: {
       type: Array,
       default: () => ([])
     },
