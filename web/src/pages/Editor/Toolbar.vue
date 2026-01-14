@@ -173,6 +173,26 @@
   <q-btn
     padding="sm"
     size="md"
+    class="bg-secondary q-mx-xs"
+    @click.capture="relationshipAnimation = !relationshipAnimation">
+    <q-icon
+      class="q-mr-xs"
+      size="xs"
+      name="animation"/>
+    <span class="q-mr-xs text-caption">Relationship Animation</span>
+    <q-toggle
+      ref="animation_toggle"
+      class="q-ml-sm no-pointer-events"
+      size="sm"
+      dense
+      color="primary"
+      :model-value="relationshipAnimation"
+      :dark="dark">
+    </q-toggle>
+  </q-btn>
+  <q-btn
+    padding="sm"
+    size="md"
     class="bg-secondary"
     @click.capture="dark = !dark">
     <q-icon
@@ -298,6 +318,11 @@ onMounted(()=>{
   const dark = computed({
     get: () => editor.getDark,
     set: (src) => editor.updateDark(src)
+  })
+
+  const relationshipAnimation = computed({
+    get: () => editor.getRelationshipAnimation,
+    set: (src) => editor.updateRelationshipAnimation(src)
   })
 
   const currentFile = computed({

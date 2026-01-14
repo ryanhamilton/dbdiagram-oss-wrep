@@ -33,7 +33,8 @@ export const useEditorStore = defineStore("editor", {
     preferences: {
       dark: false,
       theme: "dracula",
-      split: 25.0
+      split: 25.0,
+      relationshipAnimation: false
     },
     parserError: {
       location: {
@@ -93,6 +94,9 @@ export const useEditorStore = defineStore("editor", {
     },
     getSplit(state) {
       return state.preferences.split;
+    },
+    getRelationshipAnimation(state) {
+      return state.preferences.relationshipAnimation;
     },
     save(state) {
       return {
@@ -172,6 +176,13 @@ export const useEditorStore = defineStore("editor", {
       this.$patch({
         preferences: {
           split
+        }
+      });
+    },
+    updateRelationshipAnimation(relationshipAnimation) {
+      this.$patch({
+        preferences: {
+          relationshipAnimation
         }
       });
     },

@@ -4,7 +4,8 @@
     :id="`ref-${id}`"
     :class="{
       'db-ref':true,
-      'db-ref__highlight': highlight
+      'db-ref__highlight': highlight,
+      'db-ref__animated': animated
     }"
     @mouseenter.passive="onMouseEnter"
     @mouseleave.passive="onMouseLeave"
@@ -74,7 +75,8 @@
     dbState: Object,
     database: Object,
     token: Object,
-    containerRef: Object
+    containerRef: Object,
+    animated: Boolean
   })
 
   const emit = defineEmits([
