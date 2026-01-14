@@ -1,21 +1,17 @@
-
-# database-diagram-oss
+# Database Diagram Generator
 
 Open Source Database Diagram Generator.
 Enables generating diagram from DBML, MySQL, PostgreSQL, MSSQL.
 
-
-## Screenshots
-
-![Demo GIF](https://raw.githubusercontent.com/TruDan/dbdiagram-oss/master/.github/media/demo.gif)
-
-
 ## Live Demo
 
-Fork demo [nomadrazor.github.io/dbdiagram-oss-wrep](https://nomadrazor.github.io/dbdiagram-oss-wrep/)
+Demo https://www.timestored.com/database-diagram/
 
 
-## Forked Info
+![Database Diagram Demo GIF](/database-diagram.gif)
+
+
+## Changes
 
 ### January 2026
 
