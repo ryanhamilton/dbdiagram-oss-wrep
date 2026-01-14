@@ -15,6 +15,7 @@ export const useChartStore = defineStore("chart", {
     actualTables:{},
     tablesDict:{},
     refs: {},
+    notes: {},
     grid: {
       size: 100,
       divisions: 10,
@@ -61,8 +62,8 @@ export const useChartStore = defineStore("chart", {
       return state.grid.size / state.grid.divisions;
     },
     persistenceData(state) {
-      const { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors } = state;
-      return  { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors };
+      const { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors, notes } = state;
+      return  { zoom, pan, ctm, inverseCtm, tables, refs, tablesColors, tableGroupColors, notes };
     },
     getPan(state) {
       return state.pan;
@@ -86,6 +87,9 @@ export const useChartStore = defineStore("chart", {
     },
     getTableGroups(){
       return this.tableGroups;
+    },
+    getNotes(){
+      return this.notes;
     },
     getTable(state) {
       return (tableId,schema,tablename) => {
@@ -408,6 +412,29 @@ export const useChartStore = defineStore("chart", {
         tablesDict:dict
       })
       this.loaded = true;
+    },
+    loadNotes(notes) {
+      // Load notes from extracted DBML notes
+      this.notes = notes;
+    },
+    getNote(noteId) {
+      if (!(noteId in this.notes)) {
+        this.notes[noteId] = {
+          x: 0,
+          y: 0,
+          width: 200,
+          height: 150
+        };
+      }
+      return this.notes[noteId];
+    },
+    updateNote(noteId, data) {
+      if (noteId in this.notes) {
+        this.notes[noteId] = {
+          ...this.notes[noteId],
+          ...data
+        };
+      }
     },
     load(state) {      
       console.log("state-> ",state,this.tablesDict)
