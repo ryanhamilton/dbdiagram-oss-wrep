@@ -14,7 +14,7 @@
       :y="state.y"
       :width="state.width"
       :height="state.height"
-      @mousedown.passive="startDrag"
+      @mousedown="startDrag"
     />
     <text 
       class="db-note__title"
