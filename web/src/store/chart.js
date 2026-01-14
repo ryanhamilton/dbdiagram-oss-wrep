@@ -304,12 +304,15 @@ export const useChartStore = defineStore("chart", {
       const cols = Math.ceil(Math.sqrt(existingPositions.length + 1));
       const maxAttempts = 100;
       let attempt = 0;
+      // Use estimated dimensions for grid spacing (tables can vary in size)
+      const estimatedWidth = 220;
+      const estimatedHeight = 150;
       
       for (let row = 0; row < maxAttempts && attempt < maxAttempts; row++) {
         for (let col = 0; col < cols && attempt < maxAttempts; col++) {
           attempt++;
-          const candidateX = startX + col * (250 + spacing);
-          const candidateY = startY + row * (150 + spacing);
+          const candidateX = startX + col * (estimatedWidth + spacing);
+          const candidateY = startY + row * (estimatedHeight + spacing);
           
           // Check if this position overlaps with any existing table
           let hasOverlap = false;
@@ -332,7 +335,7 @@ export const useChartStore = defineStore("chart", {
       // Fallback: place to the right of the rightmost table
       const rightmostTable = existingPositions.reduce((max, table) => 
         (table.x + table.width > max.x + max.width) ? table : max
-      );
+      , existingPositions[0]);
       return { 
         x: rightmostTable.x + rightmostTable.width + spacing, 
         y: rightmostTable.y 
