@@ -52,10 +52,10 @@ export function savePng(filename,resolution) {
         console.log('load image');
         var canvas = document.createElement('canvas');
         canvas.width = image.width * scaleFactor;
-        canvas.height = image.height *scaleFactor;
+        canvas.height = image.height * scaleFactor;
         var context = canvas.getContext('2d');
-        context.drawImage(image, 0,0);
         context.setTransform(scaleFactor,0,0,scaleFactor,0,0);
+        context.drawImage(image, 0, 0);
         var a = document.createElement('a');
         a.download = filename;
         a.href = canvas.toDataURL('image/png',1.0);
