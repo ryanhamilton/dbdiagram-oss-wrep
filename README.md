@@ -66,6 +66,32 @@ Fork demo [nomadrazor.github.io/dbdiagram-oss-wrep](https://nomadrazor.github.io
 View the latest master branch at [trudan.github.io/dbdiagram-oss](https://trudan.github.io/dbdiagram-oss/)
 
 
+## Documentation
+
+Comprehensive documentation is available to help developers and AI assistants work with this codebase:
+
+- **[Development Guide](DEVELOPMENT.md)** - Setup, building, testing, and contributing
+- **[Architecture Documentation](ARCHITECTURE.md)** - Technical architecture, data flow, and design patterns
+- **[Component Documentation](web/src/COMPONENTS.md)** - Detailed component reference and usage
+- **[AI Assistant Guide](.github/AI_GUIDE.md)** - Guide for AI tools working with this codebase
+
+## Quick Start
+
+```bash
+# Navigate to web directory
+cd web
+
+# Install dependencies
+yarn install
+
+# Start development server
+yarn dev
+
+# Build for production
+yarn build
+```
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup instructions.
 
 
 ## License
