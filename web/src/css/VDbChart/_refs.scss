@@ -31,7 +31,8 @@
   &__animated {
     .db-ref__path {
       stroke-width: var(--ref-animated-width);
-      animation: pulse-flow 2s ease-in-out infinite;
+      stroke-dasharray: 10 5;
+      animation: flow-direction 1.5s linear infinite;
     }
   }
 
@@ -58,13 +59,11 @@
   }
 }
 
-@keyframes pulse-flow {
-  0%, 100% {
-    stroke-width: var(--ref-animated-width);
-    opacity: 0.8;
+@keyframes flow-direction {
+  0% {
+    stroke-dashoffset: 0;
   }
-  50% {
-    stroke-width: calc(var(--ref-animated-width) + 1);
-    opacity: 1;
+  100% {
+    stroke-dashoffset: -15;
   }
 }

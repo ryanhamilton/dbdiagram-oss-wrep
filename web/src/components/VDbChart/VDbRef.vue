@@ -14,10 +14,14 @@
     <path
       class="db-ref__hitbox"
       :d="path"
+      @click="showColorPicker"
+      @contextmenu.prevent="showColorPicker"
     />
     <path
       class="db-ref__path"
       :d="path"
+      @click="showColorPicker"
+      @contextmenu.prevent="showColorPicker"
     />
 
     <text :class="{
@@ -53,7 +57,7 @@
               @mousedown.passive="controlPoint_startDrag"
               @mouseenter.passive="controlPoint_onMouseEnter"
               @mouseleave.passive="controlPoint_onMouseLeave"
-              @contextmenu.prevent="showTooltip"
+              @contextmenu.prevent="showColorPicker"
       />
     </g>
 
@@ -404,7 +408,7 @@
 
   }
 
-  const showTooltip = (e) => {
+  const showColorPicker = (e) => {
     const p = store.inverseCtm.transformPoint({
       x: e.offsetX,
       y: e.offsetY
