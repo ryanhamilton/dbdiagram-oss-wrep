@@ -9,14 +9,17 @@
     }"
     @mouseenter.passive="onMouseEnter"
     @mouseleave.passive="onMouseLeave"
+    @click.passive="onRefClick"
   >
     <path
       class="db-ref__hitbox"
       :d="path"
+      :style="refColor ? `stroke: ${refColor};` : ''"
     />
     <path
       class="db-ref__path"
       :d="path"
+      :style="refColor ? `stroke: ${refColor};` : ''"
     />
 
     <text :class="{
@@ -36,6 +39,29 @@
           :y="labels.end.pos.y">
       {{ labels.end.rel }}
     </text>
+
+    <!-- Color picker icon -->
+    <g v-if="showColorIcon" class="db-ref__color-icon" @click.passive="onColorIconClick">
+      <rect 
+        :x="colorIconPosition.x - 15" 
+        :y="colorIconPosition.y - 15" 
+        width="30" 
+        height="30" 
+        :fill="refColor || 'var(--ref-color)'" 
+        class="db-ref__icon-bg"
+        rx="3"
+      />
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        :x="colorIconPosition.x - 10" 
+        :y="colorIconPosition.y - 10" 
+        height="20" 
+        viewBox="0 -960 960 960" 
+        width="20"
+      >
+        <path fill="#ffffff" d="m247-904 57-56 343 343q23 23 23 57t-23 57L457-313q-23 23-57 23t-57-23L153-503q-23-23-23-57t23-57l190-191-96-96Zm153 153L209-560h382L400-751Zm360 471q-33 0-56.5-23.5T680-360q0-21 12.5-45t27.5-45q9-12 19-25t21-25q11 12 21 25t19 25q15 21 27.5 45t12.5 45q0 33-23.5 56.5T760-280ZM80 0v-160h800V0H80Z"/>
+      </svg>
+    </g>
 
     <g class="db-ref__control-points">
       <circle v-for="(v,i) of controlPoints"
@@ -89,8 +115,13 @@
   const gridSnap = store.grid.snap
 
   const highlight = ref(false)
+  const showColorIcon = ref(false)
   const affectedTables = ref([])
   const d = ref('')
+
+  // Get custom color for this ref
+  const customRefColor = computed(() => store.getRefColor(props.id))
+  const refColor = computed(() => customRefColor.value || '')
 
   const getVisibleFields = (table) => {
     const level = store.getDetailLevel;
@@ -339,11 +370,49 @@
     return `M ${start.x},${start.y} L ${points.map(p => (`${p.x},${p.y}`)).join(' ')} L ${end.x} ${end.y}`
   })
 
+  // Calculate position for color icon (near the middle of the line)
+  const colorIconPosition = computed(() => {
+    const points = s.vertices
+    if (!points.length || points.length < 2) {
+      return { x: 0, y: 0 }
+    }
+    // Position near the first control point
+    return {
+      x: points[0].x + 20,
+      y: points[0].y - 20
+    }
+  })
+
   const onMouseEnter = (e) => {
     highlight.value = true
   }
   const onMouseLeave = (e) => {
     highlight.value = false
+    showColorIcon.value = false
+  }
+
+  // Handle click on the ref line to show color icon
+  const onRefClick = (e) => {
+    // Only show color icon if not clicking on control points
+    if (!e.target.classList.contains('db-ref__control-point')) {
+      showColorIcon.value = true
+    }
+  }
+
+  // Handle click on the color icon to show color picker
+  const onColorIconClick = (e) => {
+    e.stopPropagation()
+    const tooltipPosition = {
+      x: colorIconPosition.value.x + 20,
+      y: colorIconPosition.value.y - 10,
+    }
+    
+    import('./VDbHeadColorTip.vue').then(module => {
+      store.showPanel(tooltipPosition, module.default, {
+        ref: { id: props.id, name: props.name },
+        isRef: true
+      })
+    })
   }
 
   const controlPoint_highlighted = ref(null)

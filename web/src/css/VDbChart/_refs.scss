@@ -57,6 +57,21 @@
     }
 
   }
+
+  &__color-icon {
+    cursor: pointer;
+    opacity: 0.9;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &__icon-bg {
+    stroke: var(--q-dark);
+    stroke-width: 1;
+    opacity: 0.95;
+  }
 }
 
 @keyframes flow {
