@@ -337,7 +337,6 @@ import VDbImportDialog from '../../components/VDbImportDialog.vue'
   const showExportDialog = (id,ext) => {
     var cfn = files.getCurrentFile.split('/');
     var fn = cfn[cfn.length-1].split('.')[0] +'.'+ ext;
-  console.log(cfn,id,ext);
     $q.dialog({
       component: VDbExportDialog,
       componentProps: {
