@@ -22,19 +22,22 @@
       <q-card class="shadow-6">
         <q-toolbar class="rounded-borders">
           <q-btn
-            class="q-mr-xs q-px-md"
+            class="q-mr-xs"
             color="secondary"
             dense
             @click="applyAutoLayout"
+            title="Auto-Layout"
           >
-            Auto-Layout
+            <q-icon name="account_tree" />
           </q-btn>
           <q-btn
-            class="q-mx-xs q-px-md"
+            class="q-mx-xs"
             color="secondary"
             dense
-            @click="applyScaleToFit">
-            fit
+            @click="applyScaleToFit"
+            title="Fit to Screen"
+          >
+            <q-icon name="fit_screen" />
           </q-btn>
           <q-btn
             class="q-mx-xs q-px-md"
@@ -149,56 +152,59 @@ import { store } from 'quasar/wrappers'
 
   const applyAutoLayout = () => {
     const tbls = chart.getTables;
-    //var cntr = tbls.lenght % 2;
-    var elements = Object.keys(tbls);
-    var layout = [];
-    let update = false;
+    const elements = Object.keys(tbls);
+    const layout = [];
+    
+    // Build layout array
     for (let el of elements){
       layout.push(Object.values(tbls[el]));
     }
-    for (let index =0 ; index < layout.length; index++){
-      var cross_vector = []
-    if (update) {
-      const tbls = chart.getTables;
-    //var cntr = tbls.lenght % 2;
-    var elements = Object.keys(tbls);
-    layout = [];
-      for (let el of elements){
-        layout.push(Object.values(tbls[el]));
+    
+    // Arrange in a compact grid layout
+    const numTables = layout.length;
+    const cols = Math.ceil(Math.sqrt(numTables));
+    const spacing = 50; // Spacing between tables
+    
+    let currentX = 0;
+    let currentY = 0;
+    let rowHeight = 0;
+    let col = 0;
+    
+    // Position tables in a grid
+    for (let index = 0; index < layout.length; index++){
+      const table = layout[index];
+      const width = table[2];
+      const height = table[3];
+      
+      // Update position
+      table[0] = currentX;
+      table[1] = currentY;
+      
+      chart.updateTable(index + 1, {
+        x: table[0], 
+        y: table[1], 
+        width: table[2], 
+        height: table[3]
+      });
+      
+      // Track row height
+      rowHeight = Math.max(rowHeight, height);
+      
+      col++;
+      
+      // Move to next column or wrap to next row
+      if (col >= cols) {
+        currentX = 0;
+        currentY += rowHeight + spacing;
+        rowHeight = 0;
+        col = 0;
+      } else {
+        currentX += width + spacing;
       }
     }
-    let current_points = getObjectPoints(layout[index]);
-    for (let i =0 ; i < layout.length; i++){
-      if (i !== index){
-     
-        cross_vector = checkCrossPoints(current_points,getObjectPoints(layout[i]));
-          if (cross_vector[0] || cross_vector[1] || cross_vector[2] || cross_vector[3]){
-          break;
-        }
-      } 
-    }
-    if (cross_vector[0]) {
-      layout[index][0] = layout[index][0]+layout[index][2]*2;
-    }
-    if (cross_vector[1]) {
-      layout[index][0] = layout[index][0]-layout[index][2]*2;
-      layout[index][1] = layout[index][1]+layout[index][3]*0.8;
-    }
-    if (cross_vector[2]) {
-      layout[index][0] = layout[index][0]-layout[index][2]*2;
-      layout[index][1] = layout[index][1]-layout[index][3]*0.8;
-    }
-    if (cross_vector[3]) {
-      layout[index][0] = layout[index][0]+layout[index][2]*2;
-      layout[index][1] =layout[index][1]- layout[index][3]*0.8;
-    }
-    if (cross_vector[0] || cross_vector[1] || cross_vector[2] || cross_vector[3]){
-         update = true;
-         chart.updateTable(index+1,{x:layout[index][0], y:layout[index][1], width:layout[index][2], height:layout[index][3]})
-        }
-    }
     
-    // do nothing
+    // After layout, center the view on the diagram
+    applyScaleToFit();
   }
 
 
