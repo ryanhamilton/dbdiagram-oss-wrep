@@ -37,7 +37,7 @@
                  v-model="newFileName"
                  type="string"
                  stack-label
-                 :label="`Change file name`"
+                 :label="isSqlImport && appendMode ? 'File name (optional - appends to current file if empty)' : 'Change file name'"
                 /> 
                 
                 <q-checkbox 
@@ -134,6 +134,29 @@
         }
       }
       
+      function formatImportError(error) {
+        // Handle new @dbml/core v5+ error structure with diags array
+        const diag = error.diags && error.diags.length > 0 ? error.diags[0] : null;
+        let locationInfo = '';
+        
+        if (diag && diag.location) {
+          locationInfo = `<div>
+            <div>Start line: ${diag.location.start.line}, column: ${diag.location.start.column} </div>
+            <div>End line: ${diag.location.end.line}, column: ${diag.location.end.column} </div>
+          </div>`;
+        } else if (error.location) {
+          // Fallback for old error structure (pre-v5)
+          locationInfo = `<div>
+            <div>Start line: ${error.location.start.line}, column: ${error.location.start.column} </div>
+            <div>End line: ${error.location.end.line}, column: ${error.location.end.column} </div>
+          </div>`;
+        }
+        
+        return `<div> <span>Import error occured${error.found ? ', founded: ' + error.found : ''} </span> 
+          ${locationInfo}
+          <p>${error.message}</p> Open console for more information </div>`;
+      }
+      
       function saveAndLoadPastedCode(code, option){
         console.log(newFileName.value);
         let err = null;
@@ -169,14 +192,9 @@
             } catch(error){
               err = error
               $q.notify({
-                caption:"Import > "+error.name,
+                caption:"Import > "+(error.name || 'Error'),
                 html:true,
-                message:`<div> <span>Import pasted code error occured, founded: ${error.found} </span> 
-                        <div>
-                        <div>Start line: ${error.location.start.line}, column: ${error.location.start.column} </div>
-                        <div>End line: ${error.location.end.line}, column: ${error.location.end.column} </div>
-                        </div>
-                        <p>${error.message}</p> Open console for more information </div>`,
+                message: formatImportError(error),
                 multiLine:true,
                 color: 'red',
                 icon: 'warning',
@@ -220,14 +238,9 @@
             } catch(error) {
               err = error
               $q.notify({
-                caption:"Import > "+error.name,
+                caption:"Import > "+(error.name || 'Error'),
                 html:true,
-                message:`<div> <span>Import pasted code error occured, founded: ${error.found} </span> 
-                        <div>
-                        <div>Start line: ${error.location.start.line}, column: ${error.location.start.column} </div>
-                        <div>End line: ${error.location.end.line}, column: ${error.location.end.column} </div>
-                        </div>
-                        <p>${error.message}</p> Open console for more information </div>`,
+                message: formatImportError(error),
                 multiLine:true,
                 color: 'red',
                 icon: 'warning',
@@ -244,26 +257,23 @@
             try {
               const editor = useEditorStore();
               const dbmlData = importer.import(code, props.id);
-              fstore.newImportFile(newFileName.value)
               
+              // If appending to current file, just update the editor
               if (appendMode.value && editor.getSourceText) {
-                // Append to existing DBML
                 editor.updateSourceText(editor.getSourceText + '\n\n' + dbmlData)
               } else {
-                // Overwrite existing DBML
+                // Create new file or overwrite
+                if (newFileName.value) {
+                  fstore.newImportFile(newFileName.value)
+                }
                 editor.updateSourceText(dbmlData)
               }
             } catch (error) {
               err = error
               $q.notify({
-                caption:"Import > "+error.name,
+                caption:"Import > "+(error.name || 'Error'),
                 html:true,
-                message:`<div> <span>Import pasted code error occured, founded: ${error.found} </span> 
-                        <div>
-                        <div>Start line: ${error.location.start.line}, column: ${error.location.start.column} </div>
-                        <div>End line: ${error.location.end.line}, column: ${error.location.end.column} </div>
-                        </div>
-                        <p>${error.message}</p> Open console for more information </div>`,
+                message: formatImportError(error),
                 multiLine:true,
                 color: 'red',
                 icon: 'warning',
@@ -333,14 +343,9 @@
                             } catch(error){
                                 err = error
                                 $q.notify({
-                                    caption:"Import > "+error.name,
+                                    caption:"Import > "+(error.name || 'Error'),
                                     html:true,
-                                    message:`<div> <span>Import file [${newFileName.value}] error occured, founded: ${error.found} </span> 
-                                            <div>
-                                            <div>Start line: ${error.location.start.line}, column: ${error.location.start.column} </div>
-                                            <div>End line: ${error.location.end.line}, column: ${error.location.end.column} </div>
-                                            </div>
-                                            <p>${error.message}</p> Open console for more information </div>`,
+                                    message: formatImportError(error),
                                     multiLine:true,
                                     color: 'red',
                                     icon: 'warning',
@@ -400,14 +405,9 @@
                             } catch(error) {
                                 err = error
                                 $q.notify({
-                                    caption:"Import > "+error.name,
+                                    caption:"Import > "+(error.name || 'Error'),
                                     html:true,
-                                    message:`<div> <span>Import file [${newFileName.value}] error occured, founded: ${error.found} </span> 
-                                            <div>
-                                            <div>Start line: ${error.location.start.line}, column: ${error.location.start.column} </div>
-                                            <div>End line: ${error.location.end.line}, column: ${error.location.end.column} </div>
-                                            </div>
-                                            <p>${error.message}</p> Open console for more information </div>`,
+                                    message: formatImportError(error),
                                     multiLine:true,
                                     color: 'red',
                                     icon: 'warning',
@@ -451,14 +451,9 @@
                             } catch (error) {
                                 err = error
                                 $q.notify({
-                                    caption:"Import > "+error.name,
+                                    caption:"Import > "+(error.name || 'Error'),
                                     html:true,
-                                    message:`<div> <span>Import file [${newFileName.value}] error occured, founded: ${error.found} </span> 
-                                            <div>
-                                            <div>Start line: ${error.location.start.line}, column: ${error.location.start.column} </div>
-                                            <div>End line: ${error.location.end.line}, column: ${error.location.end.column} </div>
-                                            </div>
-                                            <p>${error.message}</p> Open console for more information </div>`,
+                                    message: formatImportError(error),
                                     multiLine:true,
                                     color: 'red',
                                     icon: 'warning',
@@ -524,16 +519,15 @@
         // Check if user pasted code instead of selecting a file
         if (isSqlImport.value && pastedCode.value && pastedCode.value.trim()) {
           // Handle pasted code
-          if (!newFileName.value || newFileName.value.trim() === '') {
-            $q.notify({
-              caption:"Import",
-              message:`Please provide a file name`,
-              multiLine:true,
-              color: 'red',
-              icon: 'warning',
-              position: "bottom-right"
-            })
-            return;
+          // Only require filename if not appending or if no current file exists
+          if (!appendMode.value && (!newFileName.value || newFileName.value.trim() === '')) {
+            // If overwriting and no filename provided, generate a default one
+            newFileName.value = `imported_${props.id}_${Date.now()}`;
+          }
+          
+          // If appending and no filename, use current file
+          if (appendMode.value && (!newFileName.value || newFileName.value.trim() === '')) {
+            newFileName.value = fstore.getCurrentFile;
           }
           
           if (fstore.getFiles.includes(newFileName.value)) {
