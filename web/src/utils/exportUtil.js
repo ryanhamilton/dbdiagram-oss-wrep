@@ -108,6 +108,8 @@ function saveFakeSvg(){
   
       var tablegroups = document.getElementById('tablegroups-layer');
       fake_svg.appendChild(tablegroups.cloneNode(true));
+      var refs = document.getElementById('refs-layer');
+      fake_svg.appendChild(refs.cloneNode(true));
       var tables = document.getElementById('tables-layer');
       fake_svg.appendChild(tables.cloneNode(true));
       let color_icons = fake_svg.getElementById('tables-layer').getElementsByClassName('db-table-header__color-icon');
@@ -118,8 +120,6 @@ function saveFakeSvg(){
       while (note_icons.length > 0) {
         note_icons[0].parentNode.removeChild(note_icons[0]);
       }
-      var refs = document.getElementById('refs-layer');
-      fake_svg.appendChild(refs.cloneNode(true));
       let fake_refs = fake_svg.getElementById('refs-layer').children;
       for (let ref of fake_refs){
         ref.removeChild(ref.getElementsByClassName("db-ref__control-points")[0]);
