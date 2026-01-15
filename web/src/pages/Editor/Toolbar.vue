@@ -41,6 +41,14 @@
             <q-item-label class="text-italic">Create New File</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable
+                dense
+                @click="loadExample"
+        >
+          <q-item-section>
+            <q-item-label class="text-italic">Open Example</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-btn-dropdown>
 
@@ -300,6 +308,7 @@
 
   const deleteFile = (file) => files.deleteFile(file)
   const newFile = () => files.newFile()
+  const loadExample = () => files.loadExampleFile()
   const saveFile = () => files.saveFile()
   const loadFile = (file) => files.loadFile(file)
 
