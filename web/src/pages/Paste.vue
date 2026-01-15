@@ -60,6 +60,8 @@ const formatOptions = [
   { label: 'MSSQL', value: 'mssql' }
 ]
 
+const validFormats = formatOptions.map(opt => opt.value)
+
 const getPlaceholder = () => {
   const placeholders = {
     dbml: 'Paste your DBML code here...',
@@ -74,9 +76,9 @@ const generateDiagram = () => {
   if (!dbmlCode.value.trim()) return
   
   // Update the editor store with the pasted code and format
-  editor.updateSourceText(dbmlCode.value)
   editor.$patch({
     source: {
+      text: dbmlCode.value,
       format: selectedFormat.value
     }
   })
@@ -93,7 +95,6 @@ const generateDiagram = () => {
 onMounted(() => {
   if (route.query.format) {
     const format = route.query.format
-    const validFormats = formatOptions.map(opt => opt.value)
     if (validFormats.includes(format)) {
       selectedFormat.value = format
     }
