@@ -95,9 +95,9 @@ const generateDiagram = () => {
     if (error) {
       // Handle new @dbml/core v5+ error structure with diags array
       const diag = error.diags && error.diags.length > 0 ? error.diags[0] : null
-      if (diag && diag.location) {
+      if (diag && diag.location && diag.location.start) {
         errorMessage = `Parse error at line ${diag.location.start.line}, column ${diag.location.start.column}: ${diag.message || 'Invalid syntax'}`
-      } else if (error.location) {
+      } else if (error.location && error.location.start) {
         // Fallback for old error structure (pre-v5)
         errorMessage = `Parse error at line ${error.location.start.line}, column ${error.location.start.column}: ${error.message || 'Invalid syntax'}`
       } else if (error.message) {
