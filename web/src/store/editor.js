@@ -151,10 +151,17 @@ export const useEditorStore = defineStore("editor", {
         const chart = useChartStore();
         chart.loadDatabase(database);
         chart.loadNotes(extractedNotes);
+        return { success: true };
       } catch (e) {
         // do nothing
         console.error('update database error',e);
-        this.updateParserError(e);
+        // Wrap updateParserError in try-catch to prevent crashes from malformed error objects
+        try {
+          this.updateParserError(e);
+        } catch (updateErr) {
+          console.error('Failed to update parser error state:', updateErr);
+        }
+        return { success: false, error: e };
       }
     },
     extractNotes(dbmlText) {
@@ -271,7 +278,7 @@ export const useEditorStore = defineStore("editor", {
               message: diag.message
             }
           });
-        } else if (err.location) {
+        } else if (err.location && err.location.start && err.location.end) {
           // Fallback for old error structure (pre-v5)
           this.$patch({
             parserError: {
@@ -281,6 +288,18 @@ export const useEditorStore = defineStore("editor", {
               },
               type: 'error',
               message: err.message
+            }
+          });
+        } else {
+          // Error without location information
+          this.$patch({
+            parserError: {
+              location: {
+                start: { row: undefined, col: undefined },
+                end: { row: undefined, col: undefined }
+              },
+              type: 'error',
+              message: err.message || 'Parse error'
             }
           });
         }

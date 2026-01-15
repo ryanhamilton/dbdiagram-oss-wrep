@@ -45,10 +45,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useQuasar } from 'quasar'
 import { useEditorStore } from '../store/editor'
 
 const router = useRouter()
 const route = useRoute()
+const $q = useQuasar()
 const editor = useEditorStore()
 const dbmlCode = ref('')
 const selectedFormat = ref('dbml')
@@ -81,7 +83,38 @@ const generateDiagram = () => {
   editor.$patch((state) => {
     state.source.format = selectedFormat.value
   })
-  editor.updateDatabase()
+  const result = editor.updateDatabase()
+  
+  // Check if parsing was successful
+  if (!result.success) {
+    // Show error notification
+    const error = result.error
+    let errorMessage = 'Failed to parse the provided code. Please check your syntax.'
+    
+    // Try to extract detailed error information
+    if (error) {
+      // Handle new @dbml/core v5+ error structure with diags array
+      const diag = error.diags && error.diags.length > 0 ? error.diags[0] : null
+      if (diag && diag.location && diag.location.start) {
+        errorMessage = `Parse error at line ${diag.location.start.line}, column ${diag.location.start.column}: ${diag.message || 'Invalid syntax'}`
+      } else if (error.location && error.location.start) {
+        // Fallback for old error structure (pre-v5)
+        errorMessage = `Parse error at line ${error.location.start.line}, column ${error.location.start.column}: ${error.message || 'Invalid syntax'}`
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+    }
+    
+    $q.notify({
+      type: 'negative',
+      message: errorMessage,
+      caption: `Import ${selectedFormat.value.toUpperCase()} Failed`,
+      position: 'bottom-right',
+      timeout: 10000,
+      multiLine: true
+    })
+    return
+  }
   
   // Navigate to the editor page with a flag to auto-fit
   router.push({ 
