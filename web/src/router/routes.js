@@ -27,6 +27,18 @@ const routes = [
       }
     ]
   },
+  {
+    path: "/mysql",
+    redirect: { path: "/paste", query: { format: "mysql" } }
+  },
+  {
+    path: "/postgresql",
+    redirect: { path: "/paste", query: { format: "postgres" } }
+  },
+  {
+    path: "/mssql",
+    redirect: { path: "/paste", query: { format: "mssql" } }
+  },
 
   // Always leave this as last one,
   // but you can also remove it

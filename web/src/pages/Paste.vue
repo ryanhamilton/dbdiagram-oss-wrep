@@ -2,18 +2,27 @@
   <q-page class="flex flex-center">
     <q-card class="paste-card">
       <q-card-section>
-        <div class="text-h5 q-mb-md">Paste DBML Code</div>
+        <div class="text-h5 q-mb-md">Paste Database Code</div>
         <div class="text-subtitle2 text-grey-7 q-mb-md">
-          Paste your DBML code below to generate a diagram
+          Select your input format and paste your code below to generate a diagram
         </div>
       </q-card-section>
 
       <q-card-section>
+        <q-select
+          v-model="selectedFormat"
+          :options="formatOptions"
+          label="Input Format"
+          outlined
+          class="q-mb-md"
+          emit-value
+          map-options
+        />
         <q-input
           v-model="dbmlCode"
           type="textarea"
           outlined
-          placeholder="Paste your DBML code here..."
+          :placeholder="getPlaceholder()"
           :rows="15"
           class="dbml-textarea"
           autofocus
@@ -34,19 +43,43 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useEditorStore } from '../store/editor'
 
 const router = useRouter()
+const route = useRoute()
 const editor = useEditorStore()
 const dbmlCode = ref('')
+const selectedFormat = ref('dbml')
+
+const formatOptions = [
+  { label: 'DBML', value: 'dbml' },
+  { label: 'MySQL', value: 'mysql' },
+  { label: 'PostgreSQL', value: 'postgres' },
+  { label: 'MSSQL', value: 'mssql' }
+]
+
+const getPlaceholder = () => {
+  const placeholders = {
+    dbml: 'Paste your DBML code here...',
+    mysql: 'Paste your MySQL code here...',
+    postgres: 'Paste your PostgreSQL code here...',
+    mssql: 'Paste your MSSQL code here...'
+  }
+  return placeholders[selectedFormat.value] || 'Paste your code here...'
+}
 
 const generateDiagram = () => {
   if (!dbmlCode.value.trim()) return
   
-  // Update the editor store with the pasted DBML code
+  // Update the editor store with the pasted code and format
   editor.updateSourceText(dbmlCode.value)
+  editor.$patch({
+    source: {
+      format: selectedFormat.value
+    }
+  })
   editor.updateDatabase()
   
   // Navigate to the editor page with a flag to auto-fit
@@ -55,6 +88,16 @@ const generateDiagram = () => {
     query: { autofit: 'true' }
   })
 }
+
+// Check if format is specified in route query parameter
+onMounted(() => {
+  if (route.query.format) {
+    const format = route.query.format
+    if (['dbml', 'mysql', 'postgres', 'mssql'].includes(format)) {
+      selectedFormat.value = format
+    }
+  }
+})
 </script>
 
 <style scoped>
