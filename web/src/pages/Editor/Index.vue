@@ -124,14 +124,6 @@
   }, 500);
 
   watch(sourceText, (newText) => {
-    // Early exit for obviously long content to avoid unnecessary encoding operations
-    if (newText && newText.length > MAX_URL_CODE_LENGTH) {
-      // If URL has code param, remove it since content is definitely too long
-      if (route.query.code) {
-        router.replace({ query: { ...route.query, code: undefined } });
-      }
-      return;
-    }
     updateUrlWithCode(newText);
   });
 
