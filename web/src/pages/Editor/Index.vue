@@ -29,6 +29,9 @@
   import { debounce, throttle, useQuasar } from 'quasar'
   import { useRoute, useRouter } from 'vue-router'
 
+  // Maximum length for URL-encoded code parameter
+  const MAX_URL_CODE_LENGTH = 1900
+
   const editorRef = ref(null)
   const graphRef = ref(null)
   const editor = useEditorStore()
@@ -103,7 +106,7 @@
     try {
       // Check encoded length to ensure URL won't be too long
       const encodedCode = encodeURIComponent(text);
-      if (encodedCode.length < 1900) {
+      if (encodedCode.length < MAX_URL_CODE_LENGTH) {
         // Update URL with code parameter (Vue Router handles encoding internally)
         router.replace({ query: { ...route.query, code: text } });
       } else {
@@ -118,7 +121,11 @@
   }, 500);
 
   watch(sourceText, (newText) => {
-    updateUrlWithCode(newText);
+    // Only update URL if code didn't come from URL parameter
+    // This prevents circular updates when loading from URL
+    if (!route.query.code || route.query.code !== newText) {
+      updateUrlWithCode(newText);
+    }
   });
 
 
