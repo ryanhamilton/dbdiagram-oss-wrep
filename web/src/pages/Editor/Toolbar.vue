@@ -199,7 +199,6 @@
     href="https://github.com/ryanhamilton/dbdiagram-oss-wrep"
     target="_blank"
     aria-label="View on GitHub"
-    type="a"
   >
     <q-img
       src="~assets/github-logo.svg"
