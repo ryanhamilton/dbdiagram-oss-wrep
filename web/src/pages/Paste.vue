@@ -76,12 +76,9 @@ const generateDiagram = () => {
   if (!dbmlCode.value.trim()) return
   
   // Update the editor store with the pasted code and format
-  editor.$patch({
-    source: {
-      text: dbmlCode.value,
-      format: selectedFormat.value
-    }
-  })
+  editor.updateSourceText(dbmlCode.value)
+  // Update format separately to avoid overwriting markers
+  editor.source.format = selectedFormat.value
   editor.updateDatabase()
   
   // Navigate to the editor page with a flag to auto-fit
