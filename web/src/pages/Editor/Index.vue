@@ -63,10 +63,10 @@
     // Check for code in URL parameter
     if (route.query.code) {
       try {
-        const decodedCode = decodeURIComponent(route.query.code);
-        editor.updateSourceText(decodedCode);
+        // Vue Router automatically decodes query parameters, so we can use it directly
+        editor.updateSourceText(route.query.code);
       } catch (e) {
-        console.error('Failed to decode code from URL parameter:', e);
+        console.error('Failed to load code from URL parameter:', e);
       }
     }
 
