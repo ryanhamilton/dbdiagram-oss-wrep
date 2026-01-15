@@ -26,7 +26,7 @@
 
 <script setup>
 
-import {ref, onMounted, nextTick} from 'vue'
+import {ref} from 'vue'
 
   const props = defineProps({
     table: Object,
@@ -62,18 +62,6 @@ import {ref, onMounted, nextTick} from 'vue'
       emit('click:color-block',e, props.table.id, props.table.name, color, props.table.schema.name, false, false)
     }
   };
-  
-  // Add native event listeners as a workaround for Vue event binding issues in dynamically rendered panels
-  onMounted(async () => {
-    await nextTick();
-    const colorBlocks = document.querySelectorAll('.db-tooltip__colorblock');
-    colorBlocks.forEach((block, index) => {
-      block.addEventListener('click', (e) => {
-        const color = index === 0 ? null : palette[Math.floor((index - 1) / 5)][(index - 1) % 5];
-        setColor(e, color);
-      });
-    });
-  });
   
 </script>
 
