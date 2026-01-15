@@ -106,7 +106,11 @@
   const showColorIcon = ref(false)
 
   // Get custom color for this ref
-  const customRefColor = computed(() => store.getRefColor(props.id))
+  const customRefColor = computed(() => {
+    const color = store.getRefColor(props.id);
+    console.log(`Ref ${props.id} customRefColor:`, color);
+    return color;
+  })
   const refColor = computed(() => customRefColor.value || '')
 
   const getVisibleFields = (table) => {

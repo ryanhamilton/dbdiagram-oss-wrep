@@ -383,9 +383,11 @@
  }
 
   function onColorClick (e, id, name, color, schema, isTableGroup, isRef) {
+    console.log('onColorClick', { id, name, color, schema, isTableGroup, isRef });
     if (isTableGroup) {
       store.updateTableGroupColor(id, color);
     } else if (isRef) {
+      console.log('Updating ref color:', id, color);
       store.updateRefColor(id, color);
     } else {
       store.updateTableColor(name, id, color, schema);

@@ -22,7 +22,7 @@
   ])
 
   function onClick(e, ...args){
-    
+    console.log('VDbPanel onClick received:', args);
     emit("click:color",e, ...args)
   }
   const panel = computed(() => store.panel)
