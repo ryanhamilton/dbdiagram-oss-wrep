@@ -61,10 +61,14 @@
     document.addEventListener("touchcancel", touchHandler, true);
 
     // Check for code in URL parameter
+    // URL parameter takes precedence over localStorage to allow sharing via URL
     if (route.query.code) {
       try {
         // Vue Router automatically decodes query parameters, so we can use it directly
-        editor.updateSourceText(route.query.code);
+        // Use nextTick to ensure the editor is fully initialized before setting code
+        nextTick(() => {
+          editor.updateSourceText(route.query.code);
+        });
       } catch (e) {
         console.error('Failed to load code from URL parameter:', e);
       }
