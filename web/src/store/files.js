@@ -13,6 +13,8 @@ const fs = localforage.createInstance({
 
 const EXAMPLE_DBML = `// Use DBML to define your database structure
 // Docs: https://dbml.dbdiagram.io/docs
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
 
 Table users {
   id integer [primary key]
@@ -68,11 +70,6 @@ Table "AuditLogs" [headercolor:#884400] {
   "CreatedAt" timestamp
 }
 
-Ref user_profile: profiles.user_id > users.id // many-to-one
-Ref user_posts: P.user_id > users.id // many-to-one
-Ref post_comments: comments.post_id > P.id // many-to-one
-Ref comment_author: comments.user_id > users.id // many-to-one
-Ref follows_user: follows.following_user_id > users.id
 Ref followed_user: follows.followed_user_id > users.id
 Ref job_owner: jobs.user_id > users.id
 
@@ -82,15 +79,6 @@ TableGroup Core {
   follows
 }
 
-TableGroup Content {
-  P
-  comments
-}
-
-TableGroup Operations {
-  jobs
-  "AuditLogs"
-}
 
 enum job_status {
   created [note: 'Waiting to be processed']
@@ -98,6 +86,7 @@ enum job_status {
   done
   failure
 }
+
 `;
 
 
