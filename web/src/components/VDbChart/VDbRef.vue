@@ -13,11 +13,22 @@
     <path
       class="db-ref__hitbox"
       :d="path"
+      @click.passive="onPathClick"
     />
     <path
       class="db-ref__path"
       :d="path"
+      :style="refColor ? { stroke: refColor } : {}"
+      @click.passive="onPathClick"
     />
+
+    <!-- Color picker icon - shown when ref is selected -->
+    <g v-show="showColorIcon" class="db-ref__color-icon" @click.passive="showColorPanel" @touchend.passive="showColorPanel">
+      <circle :cx="colorIconPos.x" :cy="colorIconPos.y" r="15" :fill="refColor || '#666'" class="db-ref__icon-bg" />
+      <svg xmlns="http://www.w3.org/2000/svg" :x="colorIconPos.x - 10" :y="colorIconPos.y - 10" height="20" viewBox="0 -960 960 960" width="20">
+        <path fill="#ffffff" d="m247-904 57-56 343 343q23 23 23 57t-23 57L457-313q-23 23-57 23t-57-23L153-503q-23-23-23-57t23-57l190-191-96-96Zm153 153L209-560h382L400-751Zm360 471q-33 0-56.5-23.5T680-360q0-21 12.5-45t27.5-45q9-12 19-25t21-25q11 12 21 25t19 25q15 21 27.5 45t12.5 45q0 33-23.5 56.5T760-280ZM80 0v-160h800V0H80Z"/>
+      </svg>
+    </g>
 
     <text :class="{
       'db-field__type':true,
@@ -64,6 +75,7 @@
   import { useChartStore } from '../../store/chart'
   import { snap } from '../../utils/MathUtil'
   import VDbRefActions from './VDbRefActions.vue'
+  import VDbHeadColorTip from './VDbHeadColorTip.vue'
 
   const props = defineProps({
     id: Number,
@@ -91,6 +103,15 @@
   const highlight = ref(false)
   const affectedTables = ref([])
   const d = ref('')
+  const showColorIcon = ref(false)
+
+  // Get custom color for this ref
+  const customRefColor = computed(() => {
+    return store.getRefColor(props.id);
+  })
+  const refColor = computed(() => {
+    return customRefColor.value || null;
+  })
 
   const getVisibleFields = (table) => {
     const level = store.getDetailLevel;
@@ -212,7 +233,22 @@
     return s.vertices
   })
 
-
+  // Position for color picker icon (at the midpoint of the line)
+  const colorIconPos = computed(() => {
+    const points = controlPoints.value
+    if (points.length === 0) {
+      return { x: 0, y: 0 }
+    }
+    // Use the midpoint between the two control points
+    if (points.length >= 2) {
+      return {
+        x: (points[0].x + points[1].x) / 2,
+        y: (points[0].y + points[1].y) / 2
+      }
+    }
+    // If only one point, use it
+    return { x: points[0].x, y: points[0].y }
+  })
 
   const getDirection = (start, end) => {
       let directions = {
@@ -344,6 +380,24 @@
   }
   const onMouseLeave = (e) => {
     highlight.value = false
+    showColorIcon.value = false
+  }
+
+  const onPathClick = (e) => {
+    // Show color icon when the path is clicked
+    showColorIcon.value = true
+  }
+
+  const showColorPanel = () => {
+    const tooltipPosition = {
+      x: colorIconPos.value.x + 20,
+      y: colorIconPos.value.y,
+    }
+    
+    store.showPanel(tooltipPosition, VDbHeadColorTip, {
+      refData: props,
+      isRef: true
+    })
   }
 
   const controlPoint_highlighted = ref(null)

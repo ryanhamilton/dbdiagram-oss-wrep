@@ -22,7 +22,6 @@
   ])
 
   function onClick(e, ...args){
-    
     emit("click:color",e, ...args)
   }
   const panel = computed(() => store.panel)
