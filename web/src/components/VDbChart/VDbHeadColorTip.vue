@@ -7,22 +7,16 @@
         <div class="text-subtitle4">Default:</div>
       </div>
       <div class="col-md-2 offset-md-2">
-        <rect class="db-tooltip__colorblock">
-              <rect class="db-tooltip__colorblock db-tooltip__colorblock-default" :style="{'background': cl, 'height':'1.4em', width: '1.4em'}" @click.passive="setColor($event, null)" @touchend.passive="setColor($event, null)"></rect>
-            </rect>
+        <div class="db-tooltip__colorblock db-tooltip__colorblock-default" :style="{'background': '#666', 'height':'1.4em', width: '1.4em', cursor: 'pointer'}" @click="setColor($event, null)" @touchend="setColor($event, null)"></div>
       </div>
       
     </div>
     <div class="q-pa-xs col">
      
-      <div class="row" v-for="row of palette" ref="cp" style="padding: 4px 6px;">
+      <div class="row" v-for="row of palette" :key="row" ref="cp" style="padding: 4px 6px;">
         <div v-for="cl of row" :key="cl" style="padding: 4px 6px;">
-        
-            <rect class="db-tooltip__colorblock">
-              <rect class="db-tooltip__colorblock" :style="{'background': cl, 'height':'1.4em', width: '1.4em'}" @click.passive="setColor($event, cl)" @touchend.passive="setColor($event, cl)"></rect>
-            </rect>
- 
-          </div>
+          <div class="db-tooltip__colorblock" :style="{'background': cl, 'height':'1.4em', width: '1.4em', cursor: 'pointer'}" @click="setColor($event, cl)" @touchend="setColor($event, cl)"></div>
+        </div>
     
     </div>      
   
