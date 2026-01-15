@@ -93,7 +93,7 @@
     set: (src) => editor.updateSourceText(src)
   })
 
-  // Watch for source text changes and update URL if code is less than 1900 characters
+  // Watch for source text changes and update URL if code is less than MAX_URL_CODE_LENGTH
   const updateUrlWithCode = debounce((text) => {
     if (!text) {
       // Remove code param if text is empty
@@ -107,8 +107,11 @@
       // Check encoded length to ensure URL won't be too long
       const encodedCode = encodeURIComponent(text);
       if (encodedCode.length < MAX_URL_CODE_LENGTH) {
-        // Update URL with code parameter (Vue Router handles encoding internally)
-        router.replace({ query: { ...route.query, code: text } });
+        // Only update if the code parameter has actually changed
+        if (route.query.code !== text) {
+          // Update URL with code parameter (Vue Router handles encoding internally)
+          router.replace({ query: { ...route.query, code: text } });
+        }
       } else {
         // Remove code param if it's too long
         if (route.query.code) {
@@ -121,11 +124,7 @@
   }, 500);
 
   watch(sourceText, (newText) => {
-    // Only update URL if code didn't come from URL parameter
-    // This prevents circular updates when loading from URL
-    if (!route.query.code || route.query.code !== newText) {
-      updateUrlWithCode(newText);
-    }
+    updateUrlWithCode(newText);
   });
 
 
