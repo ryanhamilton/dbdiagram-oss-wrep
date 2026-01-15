@@ -18,7 +18,7 @@
     <path
       class="db-ref__path"
       :d="path"
-      :style="refColor ? `stroke: ${refColor};` : ''"
+      :style="refColor ? { stroke: refColor } : {}"
       @click.passive="onPathClick"
     />
 
@@ -106,8 +106,12 @@
   const showColorIcon = ref(false)
 
   // Get custom color for this ref
-  const customRefColor = computed(() => store.getRefColor(props.id))
-  const refColor = computed(() => customRefColor.value || '')
+  const customRefColor = computed(() => {
+    return store.getRefColor(props.id);
+  })
+  const refColor = computed(() => {
+    return customRefColor.value || null;
+  })
 
   const getVisibleFields = (table) => {
     const level = store.getDetailLevel;
