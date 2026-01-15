@@ -60,6 +60,10 @@
 
       const editorInit = (editor) => {
         ace = editor
+        
+        // Remove Ctrl+L keybinding to allow browser's address bar shortcut
+        // The default Ctrl+L in Ace Editor shows "go to line" dialog
+        ace.commands.removeCommand('gotoline')
       }
 
       const options = ref({
