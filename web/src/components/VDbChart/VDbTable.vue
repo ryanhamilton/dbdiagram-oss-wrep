@@ -216,6 +216,37 @@
     props.containerRef.removeEventListener('mousemove', drag, { passive: true })
     props.containerRef.removeEventListener('mouseup', drop, { passive: true })
     props.containerRef.removeEventListener('mouseleave', onMouseLeave, { passive: true })
+    
+    // Reset all refs connected to this table to auto mode
+    // This removes manual waypoints and creates simple orthogonal connections
+    resetConnectedRefs()
+  }
+  
+  const resetConnectedRefs = () => {
+    // Find all refs in the database that are connected to this table
+    const database = editor.database
+    if (!database || !database.schemas) return
+    
+    // Get all refs from the chart store
+    const chartRefs = store.getRefs
+    
+    // Iterate through all schemas to find refs connected to this table
+    for (const schema of database.schemas) {
+      if (!schema.refs) continue
+      
+      for (const dbRef of schema.refs) {
+        // Check if this ref is connected to the current table
+        const isConnected = dbRef.endpoints.some(endpoint => 
+          endpoint.fields.some(field => field.table.id === props.id)
+        )
+        
+        if (isConnected && chartRefs[dbRef.id]) {
+          // Reset the ref to auto mode with empty vertices
+          chartRefs[dbRef.id].auto = true
+          chartRefs[dbRef.id].vertices = []
+        }
+      }
+    }
   }
   const startDrag = ({
     offsetX,
