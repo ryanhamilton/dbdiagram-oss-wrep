@@ -9,6 +9,7 @@
     }"
     @mouseenter.passive="onMouseEnter"
     @mouseleave.passive="onMouseLeave"
+    @click.passive="onRefClick"
   >
     <path
       class="db-ref__hitbox"
@@ -17,6 +18,7 @@
     <path
       class="db-ref__path"
       :d="path"
+      :style="refColor ? `stroke: ${refColor};` : ''"
     />
 
     <text :class="{
@@ -56,6 +58,14 @@
       />
     </g>
 
+    <!-- Color palette icon - shown when ref is selected -->
+    <g v-if="palette_icon && controlPoints.length > 0" class="db-ref__color-icon" @click.passive="onColorIconClick" @touchend.passive="onColorIconClick">
+      <rect class="db-ref__icon-bg" :fill="refColor || 'var(--ref-color)'" :x="controlPoints[0].x - 12" :y="controlPoints[0].y - 35" height="25" width="25" rx="3" />
+      <svg class="db-ref__icon" xmlns="http://www.w3.org/2000/svg" :x="controlPoints[0].x - 10" :y="controlPoints[0].y - 33" height="21" viewBox="0 -960 960 960" width="21">
+        <path fill="white" d="m247-904 57-56 343 343q23 23 23 57t-23 57L457-313q-23 23-57 23t-57-23L153-503q-23-23-23-57t23-57l190-191-96-96Zm153 153L209-560h382L400-751Zm360 471q-33 0-56.5-23.5T680-360q0-21 12.5-45t27.5-45q9-12 19-25t21-25q11 12 21 25t19 25q15 21 27.5 45t12.5 45q0 33-23.5 56.5T760-280ZM80 0v-160h800V0H80Z"/>
+      </svg>
+    </g>
+
   </g>
 </template>
 
@@ -64,6 +74,7 @@
   import { useChartStore } from '../../store/chart'
   import { snap } from '../../utils/MathUtil'
   import VDbRefActions from './VDbRefActions.vue'
+  import VDbHeadColorTip from './VDbHeadColorTip.vue'
 
   const props = defineProps({
     id: Number,
@@ -91,6 +102,10 @@
   const highlight = ref(false)
   const affectedTables = ref([])
   const d = ref('')
+  const palette_icon = ref(false)
+
+  const customRefColor = computed(() => store.getRefColor(props.id))
+  const refColor = computed(() => customRefColor.value || '')
 
   const getVisibleFields = (table) => {
     const level = store.getDetailLevel;
@@ -344,6 +359,26 @@
   }
   const onMouseLeave = (e) => {
     highlight.value = false
+    palette_icon.value = false
+  }
+
+  const onRefClick = (e) => {
+    palette_icon.value = true
+  }
+
+  const onColorIconClick = (e) => {
+    e.stopPropagation()
+    if (controlPoints.value.length > 0) {
+      const tooltipPosition = {
+        x: controlPoints.value[0].x + 20,
+        y: controlPoints.value[0].y - 35,
+      }
+      
+      store.showPanel(tooltipPosition, VDbHeadColorTip, {
+        ref: { id: props.id, name: props.name },
+        isRef: true
+      })
+    }
   }
 
   const controlPoint_highlighted = ref(null)

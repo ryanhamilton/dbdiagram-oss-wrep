@@ -57,6 +57,19 @@
     }
 
   }
+
+  &__color-icon {
+    cursor: pointer;
+    pointer-events: all;
+  }
+
+  &__icon-bg {
+    opacity: 0.9;
+  }
+
+  &__icon {
+    pointer-events: none;
+  }
 }
 
 @keyframes flow {
