@@ -3,9 +3,11 @@
     <q-header elevated class="bg-dark text-white">
       <q-toolbar>
         <q-toolbar-title shrink>
-          <q-avatar rounded>
-            <q-img src="~assets/logo.png" />
-          </q-avatar>
+          <q-img 
+            src="~assets/company-logo.svg" 
+            style="width: 145px; height: 22px;"
+            alt="DB Diagram OSS"
+          />
         </q-toolbar-title>
         <router-view name="toolbar"/>
       </q-toolbar>

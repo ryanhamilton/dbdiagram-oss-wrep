@@ -192,6 +192,21 @@
       name="settings"
     />
   </q-btn>
+  <q-btn
+    padding="sm"
+    size="md"
+    class="bg-secondary q-mx-xs"
+    href="https://github.com/ryanhamilton/dbdiagram-oss-wrep"
+    target="_blank"
+    aria-label="View on GitHub"
+    type="a"
+  >
+    <q-img
+      src="~assets/github-logo.svg"
+      style="width: 20px; height: 20px;"
+      alt="GitHub"
+    />
+  </q-btn>
 </template>
 
 <script setup>
