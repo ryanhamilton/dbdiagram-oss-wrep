@@ -59,15 +59,11 @@ import {ref} from 'vue'
               ['#990D0D','#CA4242','#DE65C3','#6724BB','#A15CF5']];
   
   const setColor = (e,color) => { 
-    console.log('VDbHeadColorTip setColor', { isTableGroup: props.isTableGroup, isRef: props.isRef, color });
     if (props.isTableGroup && props.tableGroup) {
-      console.log('Emitting for tableGroup:', props.tableGroup.id, props.tableGroup.name, color);
       emit('click:color-block',e, props.tableGroup.id, props.tableGroup.name, color, null, true, false)
     } else if (props.isRef && props.ref) {
-      console.log('Emitting for ref:', props.ref.id, props.ref.name, color);
       emit('click:color-block',e, props.ref.id, props.ref.name, color, null, false, true)
     } else if (props.table) {
-      console.log('Emitting for table:', props.table.id, props.table.name, color);
       emit('click:color-block',e, props.table.id, props.table.name, color, props.table.schema.name, false, false)
     }
   };
