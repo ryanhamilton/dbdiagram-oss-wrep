@@ -101,9 +101,10 @@
     }
     
     try {
+      // Check encoded length to ensure URL won't be too long
       const encodedCode = encodeURIComponent(text);
       if (encodedCode.length < 1900) {
-        // Update URL with code parameter
+        // Update URL with code parameter (Vue Router handles encoding internally)
         router.replace({ query: { ...route.query, code: text } });
       } else {
         // Remove code param if it's too long
