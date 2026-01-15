@@ -27,7 +27,7 @@
   import { useEditorStore } from 'src/store/editor'
   import { useChartStore } from 'src/store/chart'
   import { debounce, throttle, useQuasar } from 'quasar'
-  import { useRoute } from 'vue-router'
+  import { useRoute, useRouter } from 'vue-router'
 
   const editorRef = ref(null)
   const graphRef = ref(null)
@@ -35,6 +35,7 @@
   const chart = useChartStore()
   const q = useQuasar()
   const route = useRoute()
+  const router = useRouter()
   function touchHandler(event) {
         var touch = event.changedTouches[0];
         var simulatedEvent = document.createEvent("MouseEvent");
@@ -55,6 +56,16 @@
     document.addEventListener("touchmove", touchHandler, true);
     document.addEventListener("touchend", touchHandler, true);
     document.addEventListener("touchcancel", touchHandler, true);
+
+    // Check for code in URL parameter
+    if (route.query.code) {
+      try {
+        const decodedCode = decodeURIComponent(route.query.code);
+        editor.updateSourceText(decodedCode);
+      } catch (e) {
+        console.error('Failed to decode code from URL parameter:', e);
+      }
+    }
 
     // Check if we should auto-fit the diagram (from paste page)
     if (route.query.autofit === 'true') {
@@ -78,6 +89,37 @@
     get: () => editor.getSourceText,
     set: (src) => editor.updateSourceText(src)
   })
+
+  // Watch for source text changes and update URL if code is less than 1900 characters
+  const updateUrlWithCode = debounce((text) => {
+    if (!text) {
+      // Remove code param if text is empty
+      if (route.query.code) {
+        router.replace({ query: { ...route.query, code: undefined } });
+      }
+      return;
+    }
+    
+    try {
+      const encodedCode = encodeURIComponent(text);
+      if (encodedCode.length < 1900) {
+        // Update URL with code parameter
+        router.replace({ query: { ...route.query, code: text } });
+      } else {
+        // Remove code param if it's too long
+        if (route.query.code) {
+          router.replace({ query: { ...route.query, code: undefined } });
+        }
+      }
+    } catch (e) {
+      console.error('Failed to encode code for URL:', e);
+    }
+  }, 500);
+
+  watch(sourceText, (newText) => {
+    updateUrlWithCode(newText);
+  });
+
 
   const preferences = computed({
     get: () => editor.getPreferences,
