@@ -37,7 +37,7 @@ import {ref} from 'vue'
   const props = defineProps({
     table: Object,
     tableGroup: Object,
-    ref: Object,
+    refData: Object,
     isTableGroup: {
       type: Boolean,
       default: false
@@ -61,8 +61,8 @@ import {ref} from 'vue'
   const setColor = (e,color) => { 
     if (props.isTableGroup && props.tableGroup) {
       emit('click:color-block',e, props.tableGroup.id, props.tableGroup.name, color, null, true, false)
-    } else if (props.isRef && props.ref) {
-      emit('click:color-block',e, props.ref.id, props.ref.name, color, null, false, true)
+    } else if (props.isRef && props.refData) {
+      emit('click:color-block',e, props.refData.id, props.refData.name, color, null, false, true)
     } else if (props.table) {
       emit('click:color-block',e, props.table.id, props.table.name, color, props.table.schema.name, false, false)
     }

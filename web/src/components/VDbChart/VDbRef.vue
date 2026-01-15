@@ -375,7 +375,7 @@
       }
       
       store.showPanel(tooltipPosition, VDbHeadColorTip, {
-        ref: { id: props.id, name: props.name },
+        refData: { id: props.id, name: props.name },
         isRef: true
       })
     }
