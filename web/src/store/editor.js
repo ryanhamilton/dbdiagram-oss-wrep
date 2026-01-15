@@ -155,7 +155,7 @@ export const useEditorStore = defineStore("editor", {
       } catch (e) {
         // do nothing
         console.error('update database error',e);
-        // Only update parser error state if it's a structured error with location info
+        // Wrap updateParserError in try-catch to prevent crashes from malformed error objects
         try {
           this.updateParserError(e);
         } catch (updateErr) {
