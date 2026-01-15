@@ -93,7 +93,8 @@ const generateDiagram = () => {
 onMounted(() => {
   if (route.query.format) {
     const format = route.query.format
-    if (['dbml', 'mysql', 'postgres', 'mssql'].includes(format)) {
+    const validFormats = formatOptions.map(opt => opt.value)
+    if (validFormats.includes(format)) {
       selectedFormat.value = format
     }
   }
