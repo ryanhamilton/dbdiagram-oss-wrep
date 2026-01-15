@@ -7,13 +7,13 @@
         <div class="text-subtitle4">Default:</div>
       </div>
       <div class="col-md-2 offset-md-2">
-        <div class="db-tooltip__colorblock db-tooltip__colorblock-default" :style="{'background': '#666', 'height':'1.4em', width: '1.4em', cursor: 'pointer'}" @click="setColor($event, null)" @touchend="setColor($event, null)"></div>
+        <div class="db-tooltip__colorblock db-tooltip__colorblock-default" :style="{'background': DEFAULT_COLOR, 'height':'1.4em', width: '1.4em', cursor: 'pointer'}" @click="setColor($event, null)" @touchend="setColor($event, null)"></div>
       </div>
       
     </div>
     <div class="q-pa-xs col">
      
-      <div class="row" v-for="row of palette" :key="row" ref="cp" style="padding: 4px 6px;">
+      <div class="row" v-for="(row, rowIndex) of palette" :key="`row-${rowIndex}`" ref="cp" style="padding: 4px 6px;">
         <div v-for="cl of row" :key="cl" style="padding: 4px 6px;">
           <div class="db-tooltip__colorblock" :style="{'background': cl, 'height':'1.4em', width: '1.4em', cursor: 'pointer'}" @click="setColor($event, cl)" @touchend="setColor($event, cl)"></div>
         </div>
@@ -48,6 +48,7 @@ import {ref} from 'vue'
     'click:color-block'
   ])
 
+  const DEFAULT_COLOR = '#666';
   const palette = [['#1E69FD','#4B82B0','#121212','#24BAB1','#126E7A'],
               ['#2D6512','#79AD51','#E4A62E','#EB801B','#8F8DD8'],
               ['#990D0D','#CA4242','#DE65C3','#6724BB','#A15CF5']];
